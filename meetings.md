@@ -1,7 +1,7 @@
 # Meetings notes
 
 ## Meeting 1.
-* **DATE:15.02.2021**
+* **DATE: 15.02.2021**
 * **ASSISTANTS: Marta Cortés Orduña**
 
 ### Minutes
