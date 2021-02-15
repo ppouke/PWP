@@ -2,7 +2,7 @@
 # BlokusTrigonWeb
 # Group information
 * Student 1. Elmeri Uotila roope.uotila@student.oulu.fi
-* Student 2. Name and email
+* Student 2. Juho Kalliokoski jkalliok@student.oulu.fi
 * Student 3. Name and email
 
 # Project Description
