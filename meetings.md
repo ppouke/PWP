@@ -11,10 +11,10 @@ The design of the client could be thought of to have more out of the box uses/fu
 In related wokrs, the Chess gallery API can be specified to use REST architecture
 
 ### Action points
-* Add description of the game to Wiki
+* Add description of the game to wiki
 * Add extra resources to the diagram of the API
-* Add extra functionality to design of the Client
-* Specify Chess gallery API
+* Add extra functionality to design of the clients
+* Specify chess gallery API
 
 
 ### Comments from staff
