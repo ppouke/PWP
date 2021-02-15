@@ -14,7 +14,7 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 * Add description of the game to Wiki
 * Add extra resources to the diagram of the API
 * Add extra functionality to design of the Client
-* specify Chess gallery API
+* Specify Chess gallery API
 
 
 ### Comments from staff
