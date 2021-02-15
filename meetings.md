@@ -1,14 +1,20 @@
 # Meetings notes
 
 ## Meeting 1.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE:15.02.2021
+* **ASSISTANTS: Marta Cortes Orduna
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+The ovierview could contain a explanation of the rules of blokus.
+The amount of resources is currently fine (5) but the design could show extra resources which (based on workload) could or could not be implemented
+The design of the client could be thought of to have more out of the box uses/functgionality.
+In related wokrs, the Chess gallery API can be specified to use REST architecture
 
 ### Action points
-*List here the actions points discussed with assistants*
+* Add description of the game to Wiki
+* Add extra resources to the diagram of the API
+* Add extra functionality to design of the Client
+* specify Chess gallery API
 
 
 ### Comments from staff
