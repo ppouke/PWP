@@ -3,7 +3,7 @@
 # Group information
 * Student 1. Elmeri Uotila roope.uotila@student.oulu.fi
 * Student 2. Juho Kalliokoski jkalliok@student.oulu.fi
-* Student 3. Name and email
+* Student 3. Sakaria Pouke  ppouke@student.oulu.fi
 
 # Project Description
 Blokus Trigon playable on a browser. Uses Python Flask.
