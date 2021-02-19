@@ -19,7 +19,7 @@ Database used: SQlite Version.??
 # How to setup and populate database:
 
 # How to run tests in database :
-  On command line in the ".../blokus/" directory simply run:
+  On the command line in the ".../blokus/" directory simply run:
   ```pytest```
   
   Note. requires pytest installed with:
