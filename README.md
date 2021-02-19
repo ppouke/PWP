@@ -10,4 +10,19 @@ Blokus Trigon playable on a browser. Uses Python Flask.
 
 __Remember to include all required documentation and HOWTOs, including how to create and populate the database, how to run and test the API, the url to the entrypoint and instructions on how to setup and run the client__
 
+Dependencies: Found in requirements_TEsb4w3.txt
+
+Database used: SQlite Version.??
+
+# How to set-up database framework:
+
+# How to setup and populate database:
+
+# How to run tests in database :
+  On command line in the ".../blokus/" directory simply run:
+  ```pytest```
+  
+  Note. requires pytest installed with:
+  ```pip install pytest```
+  
 
