@@ -14,7 +14,7 @@ Dependencies: Found in requirements_TEsb4w3.txt
 
 Database used: SQlite Version 2.6.0
 
-# How to set-up database framework <sub> Needed? <sub/>
+# How to set-up database framework & External libraries <sup> Needed? <sup/>
 
 # How to setup and populate database
 
