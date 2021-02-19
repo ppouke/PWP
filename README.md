@@ -12,7 +12,7 @@ __Remember to include all required documentation and HOWTOs, including how to cr
 
 Dependencies: Found in requirements_TEsb4w3.txt
 
-Database used: SQlite Version.2.6.0
+Database used: SQlite Version 2.6.0
 
 # How to set-up database framework
 
