@@ -12,13 +12,13 @@ __Remember to include all required documentation and HOWTOs, including how to cr
 
 Dependencies: Found in requirements_TEsb4w3.txt
 
-Database used: SQlite Version.??
+Database used: SQlite Version.2.6.0
 
-# How to set-up database framework:
+# How to set-up database framework
 
-# How to setup and populate database:
+# How to setup and populate database
 
-# How to run tests in database :
+# How to run tests in database 
   On the command line in the ".../blokus/" directory simply run: ```pytest```<br/> The test_database.py file should be detected automatically
   
   Note. requires pytest installed with:
