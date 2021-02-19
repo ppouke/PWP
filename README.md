@@ -21,6 +21,7 @@ Database used: SQlite Version.??
 # How to run tests in database :
   On the command line in the ".../blokus/" directory simply run:
   ```pytest```
+  The test_database.py file should be detected automatically
   
   Note. requires pytest installed with:
   ```pip install pytest```
