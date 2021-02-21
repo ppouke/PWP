@@ -14,15 +14,16 @@ Dependencies: Found in requirements_TEsb4w3.txt
 
 Database used: SQlite Version 2.6.0
 
-# How to set-up database framework & External libraries <sup> Needed? <sup/>
-
 # How to setup and populate database
+
+Firstly, it is recommended initialize a new database/update the existing database to ensure the newest database schema is used.
 
 The database is can be initialized using python as:
 ```python
 from app import db, State, Game, Player
 db.create_all(()
 ```
+
 Model instances can be created/edited/removed with SQLAlchemy procedures.
 
 E.g. Creating and removing a Game instance with State and Player:
