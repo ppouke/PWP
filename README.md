@@ -18,7 +18,7 @@ Database used: SQlite Version 2.6.0
 
 Firstly, it is recommended initialize a new database/update the existing database to ensure the newest database schema is used.
 
-The database is can be initialized using python as:
+The database can be initialized using python with:
 ```python
 from app import db, State, Game, Player
 db.create_all(()
@@ -28,7 +28,6 @@ Model instances can be created/edited/removed with SQLAlchemy procedures.
 
 E.g. Creating and removing a Game instance with State and Player:
 ```python
-
 #Create model instances
 
 player = Player(color = "#CD5C5C")
@@ -45,8 +44,6 @@ db.session.add(state)
 db.session.add(game)
 
 db.session.commit()
-
-
 ```
 
 The diagram for relationships between models can be found in the wiki under DL2. Database design and implementation
