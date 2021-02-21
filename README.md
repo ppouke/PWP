@@ -58,6 +58,15 @@ The diagram for relationships between models can be found in the wiki under DL2.
   
   The test_database.py file should be detected automatically
   
+  This file tests the database with:
+  1. Creating of instance models
+  2. Finding instance in database and testing relationships
+  3. Updating existing instances
+  4. Removing instances
+  5. Game - State one to one relationship errors
+  6. Mandatory column errors
+ 
+  
   Note. requires pytest installed with:
   ```console
   pip install pytest
