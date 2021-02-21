@@ -15,7 +15,7 @@ Dependencies: Found in requirements_TEsb4w3.txt
 Database used: SQlite Version 2.6.0
 
 # How to setup and populate database
-
+The code for the database and testing is found under the /blokus/ directory
 Firstly, it is recommended initialize a new database/update the existing database to ensure the newest database schema is used.
 
 The database can be initialized using python with:
