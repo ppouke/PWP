@@ -47,6 +47,8 @@ db.session.commit()
 
 
 ```
+
+The diagram for relationships between models van be found in the wiki under DL2. Database design and implementation
   
 
 # How to run tests of the database 
