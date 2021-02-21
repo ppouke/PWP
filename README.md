@@ -25,10 +25,10 @@ db.create_all(()
 ```
 Model instances can be created/edited/removed with SQLAlchemy procedures.
 
-E.g. Creating and removing a Game instance with state and player:
+E.g. Creating and removing a Game instance with State and Player:
 ```python
 
-#create model instances
+#Create model instances
 
 player = Player(color = "#CD5C5C")
 state = State(placed_blocks = "0")
@@ -38,7 +38,7 @@ game = Game()
 game.board_state = state
 game.players.append(player)
 
-#add and commit to database
+#Add and commit to database
 db.session.add(player)
 db.session.add(state)
 db.session.add(game)
