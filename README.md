@@ -18,6 +18,37 @@ Database used: SQlite Version 2.6.0
 
 # How to setup and populate database
 
+The database is can be initialized using python as:
+```python
+from app import db, State, Game, Player
+db.create_all(()
+```
+Model instances can be created/edited/removed with SQLAlchemy procedures.
+
+E.g. Creating and removing a Game instance with state and player:
+```python
+
+#create model instances
+
+player = Player(color = "#CD5C5C")
+state = State(placed_blocks = "0")
+game = Game()
+
+#Add relationships
+game.board_state = state
+game.players.append(player)
+
+#add and commit to database
+db.session.add(player)
+db.session.add(state)
+db.session.add(game)
+
+db.session.commit()
+
+
+```
+  
+
 # How to run tests of the database 
   On the command line in the ".../blokus/" directory simply run: 
   ```console 
