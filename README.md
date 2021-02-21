@@ -27,7 +27,7 @@ db.create_all(()
 
 Model instances can be created/edited/removed with SQLAlchemy procedures.
 
-E.g. Creating and removing a Game instance with State and Player:
+E.g. Creating a Game instance with State and Player:
 ```python
 #Create model instances
 
