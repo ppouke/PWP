@@ -1,4 +1,4 @@
-# PWP SPRING 2020
+# PWP SPRING 2021
 # BlokusTrigonWeb
 # Group information
 * Student 1. Elmeri Uotila roope.uotila@student.oulu.fi
