@@ -21,14 +21,20 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 2.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE:01.03.2021**
+* **ASSISTANTS: Iván Sánchez Milara**
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+- Clarify the database diagram (Don't need to define relationships in table & mark  if relation ship isone-one/many-to-one).
+- Entities could have more attributes
+- Testing unexpected occurences in the database, such as a removing a player in the state.
+- Consider adding a model for blocks, or using binary files instead of a string for available/placed blocks
 
 ### Action points
-*List here the actions points discussed with assistants*
+- Clarify diagram
+- Add extra attributes to game model
+- Add functionality and testing for exeptional cases (i.e. removing a player from the state)
+- Potentially create a model for blocks 
 
 
 ### Comments from staff
@@ -49,22 +55,16 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 4.
-* **DATE: 01.03.2021**
-* **ASSISTANTS: Iván Sánchez Milara**
+* **DATE: **
+* **ASSISTANTS: **
 
 ### Minutes
-- Clarify the database diagram (Don't need to define relationships in table & mark  if relation ship isone-one/many-to-one).
-- Entities could have more attributes
-- Testing unexpected occurences in the database, such as a removing a player in the state.
-- Consider adding a model for blocks, or using binary files instead of a string for available/placed blocks
+*Summary of what was discussed during the meeting*
 
 
 ### Action points
 *List here the actions points discussed with assistants*
-- Clarify diagram
-- Add extra attributes to game model
-- Add functionality and testing for exeptional cases (i.e. removing a player from the state)
-- Potentially create a model for blocks 
+
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
