@@ -21,7 +21,7 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 2.
-* **DATE:01.03.2021**
+* **DATE: 01.03.2021**
 * **ASSISTANTS: Iván Sánchez Milara**
 
 ### Minutes
@@ -55,8 +55,8 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 4.
-* **DATE: **
-* **ASSISTANTS: **
+* **DATE:**
+* **ASSISTANTS:**
 
 ### Minutes
 *Summary of what was discussed during the meeting*
