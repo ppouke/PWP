@@ -1,7 +1,7 @@
 # PWP SPRING 2021
 # BlokusTrigonWeb
 # Group information
-* Student 1. Elmeri Uotila roope.uotila@student.oulu.fi
+* Student 1. Elmeri Uotila ruotila@student.oulu.fi
 * Student 2. Juho Kalliokoski jkalliok@student.oulu.fi
 * Student 3. Sakaria Pouke  ppouke@student.oulu.fi
 
