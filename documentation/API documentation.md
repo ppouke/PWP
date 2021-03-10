@@ -252,10 +252,10 @@ Get a list of all games running on the server
 					}
 					"profile": {
 					"href": "/profiles/game/"
+					}
 				}
-		}
 			]
-		}
+			}
 
 ### Add game [POST]
 
