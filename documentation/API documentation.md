@@ -322,8 +322,8 @@ Get the game representation.
 								"color": {
 									"description": "Players color id",
 									"type": "integer"
-								}
-"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+								},
+								"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
 							},
 							"required": ["color", "available-blocks"]
 						}
@@ -338,12 +338,12 @@ Get the game representation.
 					"blokus:state": {
 						"href": "/api/games/casual_game/state/"
 					}
-    "self": {
-"href : "/api/game/casual_game/"
-    }
-    "profile" : {
-""href : "/profiles/game/"
-    }
+					"self": {
+						"href : "/api/game/casual_game/"
+					}
+					"profile" : {
+						"href : "/profiles/game/"
+					}
 
 				},
 				"name": "Casual Game",
@@ -395,10 +395,10 @@ Add a player to the game. Must validate against the player schema.
         
     + Body
     
-            {
-"color": 1,
-"available-blocks": "1,2,3,4,5,6,7,8,9,10,11,12,13"
-            }
+			{
+			"color": 1,
+			"available-blocks": "1,2,3,4,5,6,7,8,9,10,11,12,13"
+			}
         
 + Response 204
 
@@ -502,8 +502,8 @@ Get the game state of the specified game.
                         "href": "/api/games/casual_game/state/"
                     },
                     "profile": {
-"href": "/profiles/gamestate/"
-}
+			"href": "/profiles/gamestate/"
+			}
                     "edit": {
                         "href": "/api/games/casual_game/state/",
                         "title": "Edit the state of the game",
@@ -530,12 +530,7 @@ Get the game state of the specified game.
                         "href": "/api/players/1/"
                     }
                 },
-                "blocks": "424022000343044301300102430202322221423310112120034120020320403
-2331300402433021314011401012343101403003220034001434110101133312421
-0243410101433322400324014234343310123141242411221044213114233134411
-3330344102440433022401022031313400243323131233201034022432001232402
-4140020214304242043221402213203341443042412442131132444300200000424
-3204212411331121311331012312222342130433124044413310134222042120400"
+                "blocks": "42402200034304430130010243020232222142331011212003412002032040323313004024330213140114010123431014030032200340014341101011333124210243410101433322400324014234343310123141242411221044213114233134411333034410244043302240102203131340024332313123320103402243200123240241400202143042420432214022132033414430424124421311324443002000004243204212411331121311331012312222342130433124044413310134222042120400"
             }
 
 + Response 404 (application/vnd.mason+json)
@@ -572,10 +567,10 @@ Edit the state resource
         
     + Body
     
-            {
-                "color": 2
-"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
-            }
+			{
+			"color": 2
+			"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+			}
         
 
 + Response 400 (application/vnd.mason+json)
@@ -673,33 +668,32 @@ Get the player representation.
 				},
 				"@controls": {
 					"self":{
-"href": "/api/players/1/"
-     }
-                    "profile": {
-"href": "/profiles/player/"
-}
+						"href": "/api/players/1/"
+				     },
+					"profile": {
+						"href": "/profiles/player/"
+					},
 					"edit": {
 						"href": "/api/players/1/",
 						"method": "PUT"
-                        "schema": {
+                        	"schema": {
 							"type": "object",
 							"properties": {
 								"color": {
 									"description": "Players color id",
 									"type": "integer"
-								}
-"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+								},
+								"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
 							},
 							"required": ["color", "available-blocks"]
+						},
+					    "game": {
+							"href": "/api/games/casual_game/
 						}
-                    "game": {
-"href": "/api/games/casual_game/
-}
-
 					}
 				},
-				"color": 1
-"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+				"color": 1,
+				"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
 			}
 
 
@@ -718,7 +712,7 @@ Edit the player resource
     
             {
                 "color": 2
-"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+				"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
             }
         
 
@@ -811,20 +805,21 @@ Get a list of all blocks known to the server
 				}
 			},
 			"items": [
-	{
-"shape": "1010101010101010101010101",
-"@controls": 
-{
-"self": {
-"href": "/api/blocks/1/"
-}
-"profile": 
-{
-"href": "/profiles/block/"
-}
-}
-	]
-}
+				{
+					"shape": "1010101010101010101010101",
+					"@controls": 
+						{
+							"self": {
+								"href": "/api/blocks/1/"
+							}
+					},
+					"profile": 
+						{
+							"href": "/profiles/block/"
+						}
+					}
+				]
+			}
 
 
 ### Block information [GET]
@@ -849,15 +844,15 @@ Get the block representation.
 					}
 				},
 				"@controls": {
-     "self : {
-"href": "/api/blocks/1/"
-     },
+					"self : {
+						"href": "/api/blocks/1/"
+					 },
 					"collection": {
 						"href": "/api/blocks/"
 					},
-    "profile": {
-"href": "/profiles/block/"
-    }
+					"profile": {
+						"href": "/profiles/block/"
+					}
 				},
 				"shape": "1010101010101010101010101"
 			}
