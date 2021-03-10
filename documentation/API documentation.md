@@ -215,7 +215,7 @@ Get a list of all games running on the server
     
     + Body
 	
-		{
+			{
 			"@namespaces": {
 				"blokus": {
 					"name": "http://wherever.this.server.is/blokus/link-relations#"
@@ -243,16 +243,16 @@ Get a list of all games running on the server
 			},
 			"items": [
 				{
-"name": "Casual game",
-"unique_name": "casual_game",
-"player_count": 4,
-"@controls": {
-"self": {
-"href": "/api/games/casual_game/"
-}
-"profile": {
-"href": "/profiles/game/"
-}
+					"name": "Casual game",
+					"unique_name": "casual_game",
+					"player_count": 4,
+					"@controls": {
+					"self": {
+					"href": "/api/games/casual_game/"
+					}
+					"profile": {
+					"href": "/profiles/game/"
+				}
 		}
 			]
 		}
