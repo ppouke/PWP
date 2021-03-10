@@ -216,45 +216,45 @@ Get a list of all games running on the server
     + Body
 	
 			{
-			"@namespaces": {
-				"blokus": {
-					"name": "http://wherever.this.server.is/blokus/link-relations#"
-				}
-			},
-			"@controls": {
-				"blokus:add-game": {
-					"href": "/api/games/",
-					"method": "POST",
-					"schema": {
-						"type": "object",
-						"properties": {
-							"name": {
-								"description": "Game name",
-								"type": "string"
+				"@namespaces": {
+					"blokus": {
+						"name": "http://wherever.this.server.is/blokus/link-relations#"
+					}
+				},
+				"@controls": {
+					"blokus:add-game": {
+						"href": "/api/games/",
+						"method": "POST",
+						"schema": {
+							"type": "object",
+							"properties": {
+								"name": {
+									"description": "Game name",
+									"type": "string"
+								},
+								"unique_name": {
+									"description": "Game name in lowercase, whitespaces replaced with underscore",
+									"type": "string"
+								}
 							},
-							"unique_name": {
-								"description": "Game name in lowercase, whitespaces replaced with underscore",
-								"type": "string"
+							"required": ["name", "unique_name"]
+						}
+					}
+				},
+				"items": [
+					{
+						"name": "Casual game",
+						"unique_name": "casual_game",
+						"@controls": {
+							"self": {
+								"href": "/api/games/casual_game/"
+							},
+							"profile": {
+								"href": "/profiles/game/"
 							}
-						},
-						"required": ["name", "unique_name"]
+						}
 					}
-				}
-			},
-			"items": [
-				{
-					"name": "Casual game",
-					"unique_name": "casual_game",
-					"player_count": 4,
-					"@controls": {
-					"self": {
-					"href": "/api/games/casual_game/"
-					}
-					"profile": {
-					"href": "/profiles/game/"
-					}
-				}
-			]
+				]
 			}
 
 ### Add game [POST]
@@ -271,7 +271,7 @@ Add a game to the game collection.
     + Body
     
             {
-                "name": "Casual game",
+				"name": "Casual game",
 				"unique_name": "casual_game"
             }
 
@@ -396,8 +396,8 @@ Add a player to the game. Must validate against the player schema.
     + Body
     
 			{
-			"color": 1,
-			"available-blocks": "1,2,3,4,5,6,7,8,9,10,11,12,13"
+				"color": 1,
+				"available-blocks": "1,2,3,4,5,6,7,8,9,10,11,12,13"
 			}
         
 + Response 204
@@ -502,8 +502,8 @@ Get the game state of the specified game.
                         "href": "/api/games/casual_game/state/"
                     },
                     "profile": {
-			"href": "/profiles/gamestate/"
-			}
+						"href": "/profiles/gamestate/"
+					},
                     "edit": {
                         "href": "/api/games/casual_game/state/",
                         "title": "Edit the state of the game",
@@ -522,15 +522,15 @@ Get the game state of the specified game.
                                     "pattern": "^[0-4]{400}$"
                                 }
                             }
-                        }
-                    "up": {
-                        "href": "/api/games/casual_game/"
-                    },                    
-                    "blokus:current-player": {
-                        "href": "/api/players/1/"
-                    }
+                        },
+						"up": {
+							"href": "/api/games/casual_game/"
+						},                    
+						"blokus:current-player": {
+							"href": "/api/players/1/"
+						}
                 },
-                "blocks": "42402200034304430130010243020232222142331011212003412002032040323313004024330213140114010123431014030032200340014341101011333124210243410101433322400324014234343310123141242411221044213114233134411333034410244043302240102203131340024332313123320103402243200123240241400202143042420432214022132033414430424124421311324443002000004243204212411331121311331012312222342130433124044413310134222042120400"
+                	"blocks": "42402200034304430130010243020232222142331011212003412002032040323313004024330213140114010123431014030032200340014341101011333124210243410101433322400324014234343310123141242411221044213114233134411333034410244043302240102203131340024332313123320103402243200123240241400202143042420432214022132033414430424124421311324443002000004243204212411331121311331012312222342130433124044413310134222042120400"
             }
 
 + Response 404 (application/vnd.mason+json)
@@ -568,8 +568,8 @@ Edit the state resource
     + Body
     
 			{
-			"color": 2
-			"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
+				"color": 2
+				"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
 			}
         
 
@@ -669,7 +669,7 @@ Get the player representation.
 				"@controls": {
 					"self":{
 						"href": "/api/players/1/"
-				     },
+					},
 					"profile": {
 						"href": "/profiles/player/"
 					},
@@ -686,10 +686,9 @@ Get the player representation.
 								"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
 							},
 							"required": ["color", "available-blocks"]
-						},
-					    "game": {
-							"href": "/api/games/casual_game/
-						}
+					},
+					"game": {
+						"href": "/api/games/casual_game/
 					}
 				},
 				"color": 1,
@@ -711,7 +710,7 @@ Edit the player resource
     + Body
     
             {
-                "color": 2
+				"color": 2
 				"available-blocks": "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13"
             }
         
@@ -798,28 +797,26 @@ Get a list of all blocks known to the server
     
     + Body
 	
-		{
-			"@namespaces": {
-				"blokus": {
-					"name": "http://wherever.this.server.is/blokus/link-relations#"
-				}
-			},
-			"items": [
 				{
-					"shape": "1010101010101010101010101",
-					"@controls": 
-						{
-							"self": {
-								"href": "/api/blocks/1/"
-							}
-					},
-					"profile": 
-						{
-							"href": "/profiles/block/"
+					"@namespaces": {
+						"blokus": {
+							"name": "http://wherever.this.server.is/blokus/link-relations#"
 						}
-					}
-				]
-			}
+					},
+					"items": [
+						{
+							"shape": "1010101010101010101010101",
+							"@controls": {
+								"self": {
+									"href": "/api/blocks/1/"
+								}
+							},
+							"profile": {
+								"href": "/profiles/block/"
+							}
+						}
+					]
+				}
 
 
 ### Block information [GET]
