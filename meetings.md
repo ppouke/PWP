@@ -41,14 +41,25 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 3.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 24.3.2021**
+* **ASSISTANTS: Iván Sánchez Milara**
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+ - Fix outdated tables
+ - Consider changing parts of the API
+ - Fix error codes in apiary
+ - Using transactions when placing blocks
+ - Rest conformance expansion
 
 ### Action points
-*List here the actions points discussed with assistants*
+- Add delete for player
+- Think about using patch or separate gamestate-resource
+- Add missing add-player parts in Game profile and link relations
+- Think about using different block collections (for example different game hardness levels)
+- Edit post for the Game
+- Add error codes 409 and 404
+- Explore transactions
+- Add more  examples for the rest conformance
 
 
 ### Comments from staff
@@ -56,7 +67,7 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 
 ## Meeting 4.
 * **DATE:**
-* **ASSISTANTS:**
+* **ASSISTANTS: **
 
 ### Minutes
 *Summary of what was discussed during the meeting*
