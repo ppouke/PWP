@@ -1,5 +1,6 @@
 import blokus.models
 import blokus.utils
+import blokus.constants
 from flask import url_for
 
 class GameItem(Resource):
