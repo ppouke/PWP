@@ -1,15 +1,6 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.engine import Engine
-from sqlalchemy import event
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-db = SQLAlchemy(app)
-
-
+import click
+from flask.cli import with_appcontext
+from blocus import db
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -30,6 +21,7 @@ class State(db.Model):
 class Game(db.Model):
     __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
+    handle = db.Column(db.String, nullable=False)
     board_state_id = db.Column(db.Integer, db.ForeignKey("state.id"), unique=True)
 
     players = db.relationship("Player", back_populates="game")
@@ -41,7 +33,7 @@ class Game(db.Model):
 class Player(db.Model):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
-    color = db.Column(db.String, nullable=False)
+    color = db.Column(db.Integer, nullable=False)
     used_blocks = db.Column(db.String)
     game_id = db.Column(db.Integer, db.ForeignKey("game.id"))
     game = db.relationship("Game", back_populates="players", ondelete="CASCADE")
@@ -60,3 +52,9 @@ class Transaction(db.Model):
 
     used_blocks = db.Column(db.String)
     board_state = db.Column(db.String)
+
+@click.command("init-db")
+@with_appcontext
+def init_db_command():
+    db.create_all()
+
