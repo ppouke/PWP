@@ -96,6 +96,14 @@ class BlokusBuilder(MasonBuilder):
             title="Get list of games"
         )
 
+    def add_control_get_game(self, game):
+        self.add_control(
+            "blokus:game",
+            url_for("api.gamecollection", game=game),
+            method="GET",
+            title="Get a game"
+        )
+
     def add_control_get_blocks(self):
         self.add_control(
             "blokus:blocks-all",
@@ -140,6 +148,14 @@ class BlokusBuilder(MasonBuilder):
             url_for("api.game", game=game),
             method="GET",
             title="Get current transaction of the game"
+        )
+
+    def add_control_get_transactions(self):
+        self.add_control(
+            "blokus:transactions-all",
+            url_for("api.transactionfactory"),
+            method="GET",
+            title="Get all transactions"
         )
 
 def create_error_response(status_code, title, message=None):
