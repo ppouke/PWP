@@ -1,3 +1,9 @@
+  
+import json
+from flask import Response, request, url_for
+from blokus.constants import *
+from blokus.models import *
+
 class MasonBuilder(dict):
     """
     A convenience class for managing dictionaries that represent Mason
@@ -103,8 +109,6 @@ class BlokusBuilder(MasonBuilder):
             method="POST",
             title="Add a new player to a game"
         )
-
-ERROR_PROFILE = "/profiles/error/"
 
 def create_error_response(status_code, title, message=None):
     resource_url = request.path
