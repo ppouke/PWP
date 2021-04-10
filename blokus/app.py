@@ -23,7 +23,7 @@ class State(db.Model):
     placed_blocks = db.Column(db.String, nullable=False)
     turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
 
-    game = db.relationship("Game", back_populates="board_state", uselist=False)
+    game = db.relationship("Game", back_populates="board_state", uselist=False, ondelete="CASCADE")
 
 
 
@@ -42,6 +42,21 @@ class Player(db.Model):
     __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
     color = db.Column(db.String, nullable=False)
-    available_blocks = db.Column(db.String)
+    used_blocks = db.Column(db.String)
     game_id = db.Column(db.Integer, db.ForeignKey("game.id"))
-    game = db.relationship("Game", back_populates="players")
+    game = db.relationship("Game", back_populates="players", ondelete="CASCADE")
+    
+
+class Block(db.Model):
+    __tablename__ = 'block'
+    id = db.Column(db.Integer, primary_key=True)
+    shape = db.Column(db.String, nullable=False)
+
+class Transaction(db.Model):
+    __tablename__ = 'transaction'
+    id = db.Column(db.Integer, primary_key=True)
+    player = db.relationship("Player")
+    board_state = db.relationship("State")
+
+    used_blocks = db.Column(db.String)
+    board_state = db.Column(db.String)
