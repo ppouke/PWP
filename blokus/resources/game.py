@@ -1,7 +1,11 @@
-import blokus.models
-import blokus.utils
-import blokus.constants
-from flask import url_for
+import json
+from jsonschema import validate, ValidationError
+from flask import Response, request, url_for
+from flask_restful import Resource
+from blokus import db
+from blokus.models import *
+from blokus.constants import *
+from blokus.utils import BlokusBuilder, create_error_response
 
 class GameItem(Resource):
 
@@ -47,6 +51,7 @@ class GameCollection(Resource):
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.GameCollection"))
         body.add_control_get_blocks()
+        body.add_control_get_transactions()
         body.add_control_add_game()
         body["items"] = []
         for game in Game.query.all():
