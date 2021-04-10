@@ -8,24 +8,31 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
 
-class State(db.Model):
-    __tablename__ = 'state'
-    id = db.Column(db.Integer, primary_key=True)
-    placed_blocks = db.Column(db.String, nullable=False)
-    turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
-
-    game = db.relationship("Game", back_populates="board_state", uselist=False, ondelete="CASCADE")
-
-
-
 class Game(db.Model):
     __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
     handle = db.Column(db.String, nullable=False)
-    board_state_id = db.Column(db.Integer, db.ForeignKey("state.id"), unique=True)
+
+    placed_blocks = db.Column(db.String, nullable=False)
+    turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
 
     players = db.relationship("Player", back_populates="game")
-    board_state = db.relationship("State", back_populates="game")
+
+    current_transaction = db.relationship("Transaction", back_populates="game")
+
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type" = "object",
+            "required": ["handle"]
+        }
+        props = schema["properties"] = {}
+        props["handle"] = {
+            "description": "Games unique handle",
+            "type". "string"
+        }
+        return schema
+
 
 
 
@@ -37,6 +44,20 @@ class Player(db.Model):
     used_blocks = db.Column(db.String)
     game_id = db.Column(db.Integer, db.ForeignKey("game.id"))
     game = db.relationship("Game", back_populates="players", ondelete="CASCADE")
+
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type" = "object",
+            "required": ["color"]
+        }
+        props = schema["properties"] = {}
+        props["color"] = {
+            "description": "Players color id (1-4)",
+            "type". "integer"
+        }
+        return schema
+
     
 
 class Block(db.Model):
@@ -48,10 +69,27 @@ class Transaction(db.Model):
     __tablename__ = 'transaction'
     id = db.Column(db.Integer, primary_key=True)
     player = db.relationship("Player")
-    board_state = db.relationship("State")
+    game = db.relationship("Game", ondelete="CASCADE")
 
     used_blocks = db.Column(db.String)
     board_state = db.Column(db.String)
+
+    @staticmethod
+    def get_schema():
+        schema = {
+            "type" = "object",
+            "required": ["player", "game"]
+        }
+        props = schema["properties"] = {}
+        props["player"] = {
+            "description": "Player whose block we want to place",
+            "type". "integer"
+        }
+        props["game"] = {
+            "description": "Game that we want to change the state of",
+            "type". "string"
+        }
+        return schema
 
 @click.command("init-db")
 @with_appcontext

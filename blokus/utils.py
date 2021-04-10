@@ -73,7 +73,7 @@ class BlokusBuilder(MasonBuilder):
     def add_control_delete_game(self, game):
         self.add_control(
             "blokus:delete",
-            api.url_for(Game, game=game),
+            url_for("api.game", game=game),
             method="DELETE",
             title="Delete this game"
         )
@@ -81,15 +81,17 @@ class BlokusBuilder(MasonBuilder):
     def add_control_add_game(self):
         self.add_control(
             "blokus:add-game",
-            api.url_for(GameCollection),
+            url_for("api.gamecollection"),
             method="POST",
-            title="Add a new game"
+            encoding="json",
+            title="Add a new game",
+            schema=Game.get_schema()
         )
 
     def add_control_get_games(self):
         self.add_control(
             "blokus:games-all",
-            api.url_for(GameCollection),
+            url_for("api.gamecollection"),
             method="GET",
             title="Get list of games"
         )
@@ -97,7 +99,7 @@ class BlokusBuilder(MasonBuilder):
     def add_control_get_blocks(self):
         self.add_control(
             "blokus:blocks-all",
-            api.url_for(BlockCollection),
+            url_for("api.blockcollection"),
             method="GET",
             title="Get list of existing blocks"
         )
@@ -105,9 +107,39 @@ class BlokusBuilder(MasonBuilder):
     def add_control_add_player(self, game):
         self.add_control(
             "blokus:add-player",
-            api.url_for(Game, game=game),
+            url_for("api.game", game=game),
             method="POST",
-            title="Add a new player to a game"
+            encoding="json",
+            title="Add a new player to a game",
+            schema=Player.get_schema())
+        )
+    
+    def add_control_add_transaction(self, game):
+        self.add_control(
+            "blokus:add-transaction",
+            url_for("api.game", game=game),
+            method=POST,
+            encoding="json",
+            title="Add transaction into game",
+            schema=Transaction.get_schema()
+        )
+    
+    def add_control_edit_transaction(self, transaction):
+        self.add_control(
+            "edit",
+            url_for("api.transactionitem", transaction=transaction),
+            method="PUT",
+            encoding="json",
+            title="Edit this transaction",
+            schema=Transaction.get_schema()
+        )
+    
+    def add_control_get_transaction(self, game):
+        self.add_control(
+            "blokus:current-transaction",
+            url_for("api.game", game=game),
+            method="GET",
+            title="Get current transaction of the game"
         )
 
 def create_error_response(status_code, title, message=None):
