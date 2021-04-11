@@ -8,8 +8,17 @@ from blokus.constants import *
 from blokus.utils import BlokusBuilder, create_error_response
 
 class PlayerItem(Resource):
-    def get(self, color):
-        db_player = Player.query.filter_by(color = color).first()
+    def get(self, game, player):
+        """
+        This function answers to the get-request for the player-resource at /api/game/<game>/players/<player>/
+        """
+        db_game = Game.query.filter_by(handle=game).first()
+        if db_game is None:
+             return create_error_response(
+                404, "Not found",
+                "No game was found with the handle {}".format(game)
+            )
+        db_player = Player.query.filter_by(color=color, game_id=db_game.id).first()
         if db_player is None:
              return create_error_response(
                 404, "Not found",
