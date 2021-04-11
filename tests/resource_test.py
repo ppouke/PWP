@@ -69,7 +69,7 @@ def _get_player_json(number=1):
     return {"color": "{}".format(number)}
 
 def _get_transaction_json(number=1):
-    return {"player": "{}".format(number), "game" = "game-1" }
+    return {"player": "{}".format(number), "game" : "game-1" }
 
 def _get_block_json():
     return {"shape":"0000000000"}
@@ -126,13 +126,13 @@ def _check_control_put_method(ctrl, client, obj, tested):
     assert method == "put"
     assert encoding == "json"
     body = None
-    if tested = "game":
+    if tested == "game":
         body = _get_game_json()
-    elif tested = "player":
+    elif tested == "player":
         body = _get_player_json()
-    elif tested = "transaction":
+    elif tested == "transaction":
         body = _get_transaction_json()
-    elif tested = "block":
+    elif tested == "block":
         body = _get_block_json()
     body["name"] = obj["name"]
     validate(body, schema)
@@ -157,13 +157,13 @@ def _check_control_post_method(ctrl, client, obj, tested):
     assert method == "post"
     assert encoding == "json"
     body = None
-    if tested = "game":
+    if tested == "game":
         body = _get_game_json()
-    elif tested = "player":
+    elif tested == "player":
         body = _get_player_json()
-    elif tested = "transaction":
+    elif tested == "transaction":
         body = _get_transaction_json()
-    elif tested = "block":
+    elif tested == "block":
         body = _get_block_json()
     validate(body, schema)
     resp = client.post(href, json=body)
@@ -176,7 +176,7 @@ class TestBlockCollection(object):
 
     def test_get(self, client):
         resp = client.get(self.RESOURCE_URL)
-        assert.resp.status_code == 200
+        assert resp.status_code == 200
         body = json.loads(resp.data)
         _check_namespace(client, body)
         assert len(body["items"]) ==3
@@ -407,7 +407,7 @@ class TestTransactionItem(object):
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
 
-      def test_put(self, client):
+    def test_put(self, client):
         valid = _get_transaction_json()
 
         # test with wrong content type
