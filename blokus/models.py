@@ -4,9 +4,9 @@ from blokus import db
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    handle = db.Column(db.String, nullable=False)
+    handle = db.Column(db.String, nullable=False, unique = True)
 
-    placed_blocks = db.Column(db.String, nullable=False)
+    placed_blocks = db.Column(db.String)
     turn_information = db.relationship("Player")
 
     players = db.relationship("Player", back_populates="game", cascade="all, delete")
@@ -203,7 +203,7 @@ def generate_blocks():
                         "00100"
                         "00100"
                         "00000")
-    
+
     for b in blocks:
         db.session.add(b)
     db.session.commit()
@@ -249,4 +249,3 @@ def generate_test_data():
     db.session.add(block_2)
 
     db.session.commit()
-

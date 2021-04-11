@@ -72,7 +72,7 @@ def _populate_db():
     db.session.commit()
 
 
-def _get_game_json(number=1):
+def _get_game_json(number=2):
     """
     Creates a valid block JSON object to be used for PUT tests.
     """
@@ -270,7 +270,6 @@ class TestGameCollection(object):
         body = json.loads(resp.data)
         _check_namespace(client, body)
         _check_control_post_method("blokus:add-game", client, body, "game")
-        _check_control_get_method("blokus:transactions-all", client, body)
         assert len(body["items"]) == 1
         for item in body["items"]:
             _check_control_get_method("self", client, item)
@@ -315,6 +314,7 @@ class TestGameItem(object):
         _check_control_get_method("profile", client, body)
         _check_control_get_method("blokus:games-all", client, body)
         _check_control_delete_method("blokus:delete", client, body)
+        _check_control_get_method("blokus:transactions-all", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
 
