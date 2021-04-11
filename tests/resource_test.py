@@ -66,6 +66,13 @@ def _get_game_json(number=1):
 
     return {"name": "block-{}".format(number), "": "extrasensor"}
 
+def _get_player_json(number=1):
+    return None
+
+def _get_transaction_json(number=1):
+    return None
+
+
 def _check_namespace(client, response):
     """
     Checks that the "blokus" namespace is found from the response body, and
@@ -117,13 +124,19 @@ def _check_control_put_method(ctrl, client, obj):
     schema = ctrl_obj["schema"]
     assert method == "put"
     assert encoding == "json"
-    body = _get_sensor_json()
+    body = None
+    if testee = "game":
+        body = _get_game_json()
+    else if testee = "player":
+        body = _get_player_json()
+    else if testee = "transaction":
+        body = _get_transaction_json()
     body["name"] = obj["name"]
     validate(body, schema)
     resp = client.put(href, json=body)
     assert resp.status_code == 204
 
-def _check_control_post_method(ctrl, client, obj):
+def _check_control_post_method(ctrl, client, obj, testee):
     """
     Checks a POST type control from a JSON object be it root document or an item
     in a collection. In addition to checking the "href" attribute, also checks
@@ -140,7 +153,13 @@ def _check_control_post_method(ctrl, client, obj):
     schema = ctrl_obj["schema"]
     assert method == "post"
     assert encoding == "json"
-    body = _get_sensor_json()
+    body = None
+    if testee = "game":
+        body = _get_game_json()
+    else if testee = "player":
+        body = _get_player_json()
+    else if testee = "transaction":
+        body = _get_transaction_json()
     validate(body, schema)
     resp = client.post(href, json=body)
     assert resp.status_code == 201
