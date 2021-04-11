@@ -28,7 +28,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 # based on http://flask.pocoo.org/docs/1.0/testing/
 # we don't need a client for database testing, just the db handle
 @pytest.fixture
-def app():
+def client():
     db_fd, db_fname = tempfile.mkstemp()
     config = {
         "SQLALCHEMY_DATABASE_URI": "sqlite:///" + db_fname,
@@ -47,17 +47,28 @@ def app():
     os.unlink(db_fname)
 
 def _populate_db():
-    for i in range(1,4):
-        shape = ""
-        for x in range(25):
-            if x % i == 0:
-                shape += "1"
-            else:
-                shape  += "0"
+    player = Player(
+        color=1,
+        used_blocks=""
+    )
+    game = Game(handle="best game", placed_blocks="0"*400)
+    block = Block(shape=("00000"
+                        "00000"
+                        "00100"
+                        "00000"
+                        "00000")
+    )
+    trans = Transaction()
 
-        b = Block(shape = shape)
-        db.session.add(b)
+    trans.game = game
+    trans.player = player
 
+    game.players.append(player)
+
+    db.session.add(player)
+    db.session.add(game)
+    db.session.add(block)
+    db.session.add(trans)
     db.session.commit()
 
 
@@ -396,7 +407,7 @@ class TestTransactionFactory(object):
 
 class TestTransactionItem(object):
     RESOURCE_URL = "/api/transactions/1/"
-    INVALID_URL = "/api/transactions/#/"
+    INVALID_URL = "/api/transactions/bobsyouruncle/"
 
     def test_get(self, client):
         resp = client.get(self.RESOURCE_URL)
