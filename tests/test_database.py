@@ -177,3 +177,13 @@ def test_mandatory_columns(app):
             db.session.commit()
 
         db.session.rollback()
+
+def test_generate_blocks(app):
+    """
+    Test adding blocks
+    """
+
+    with app.app_context():
+        generate_blocks()
+        assert Block.query.count() == 12
+        
