@@ -144,9 +144,9 @@ def init_db_command():
 @click.command("genblocks")
 @with_appcontext
 def generate_blocks():
-    """
+
     This function populates the database with valid blocks
-    """
+
     blocks = []
 
     blocks.append(Block())
