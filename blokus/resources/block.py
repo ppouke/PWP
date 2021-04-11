@@ -1,4 +1,4 @@
-from bloku.utils import BlockusBuilder
+from blokus.utils import BlokusBuilder
 from blokus.models import Block
 import json
 from flask import Response, request, url_for
@@ -11,7 +11,7 @@ class BlockCollection(Resource):
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.blockcollection"))
         body["items"] = []
-        for db_block in Block.query.all()
+        for db_block in Block.query.all():
             item = BlokusBuilder(
                 shape = db_block.shape
             )
@@ -74,7 +74,7 @@ class BlockItem(Resource):
     
     def delete(self, block):
         db_block = Block.query.filter_by(id=block).first()
-        if db_trans = None:
+        if db_trans == None:
             return create_error_response(
                 404, "Not found",
                 "No block was found with the id {}".format(transaction)

@@ -33,7 +33,7 @@ class GameItem(Resource):
 
     def post(self, game):
         db_game = Game.query.filter_by(handle=game).first()
-        if db_game = None:
+        if db_game == None:
             return create_error_response(
                 404, "Not found",
                 "No game was found with the handle {}".format(game)

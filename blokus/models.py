@@ -3,7 +3,6 @@ from flask.cli import with_appcontext
 from blokus import db
 
 class Game(db.Model):
-    __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
     handle = db.Column(db.String, nullable=False)
 
@@ -34,7 +33,6 @@ class Game(db.Model):
 
 
 class Player(db.Model):
-    __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
     color = db.Column(db.Integer, nullable=False)
     used_blocks = db.Column(db.String)
@@ -61,7 +59,6 @@ class Player(db.Model):
 
 
 class Block(db.Model):
-    __tablename__ = 'block'
     id = db.Column(db.Integer, primary_key=True)
     shape = db.Column(db.String, nullable=False)
 
@@ -80,7 +77,6 @@ class Block(db.Model):
         return schema
 
 class Transaction(db.Model):
-    __tablename__ = 'transaction'
     id = db.Column(db.Integer, primary_key=True)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id', ondelete="SET NONE"))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id', ondelete="CASCADE"))

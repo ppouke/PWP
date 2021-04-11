@@ -93,7 +93,7 @@ class TransactionFactory(Resource):
             "Location": url_for("api.transactionitem", transaction=id)
         })
 
-class TransactionItem()
+class TransactionItem(Resource)
     def get(self, transaction):
         db_trans = Transaction.query.filter_by(id=transaction).first()
         if db_trans = None:
