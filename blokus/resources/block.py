@@ -24,6 +24,13 @@ class BlockCollection(Resource):
 
         return Response(json.dumps(body), 200, mimetype=MASON)
     def post(self):
+
+        if not request.json:
+            return create_error_response(
+                415, "Unsupported media type",
+                "Requests must be JSON"
+            )
+            
         try:
             validate(request.json, Block.get_schema())
         except ValidationError as e:
@@ -48,12 +55,15 @@ class BlockItem(Resource):
                 "No block was found with the id {}".format(sensor)
             )
 
+
+
         body = BlokusBuilder(
             shape=db_block.shape
         )
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.blockitem", block=db_block.id))
         body.add_control("profile", BLOCK_PROFILE)
+        body.add_control_get_blocks()
 
         return Response(json.dumps(body), 200, mimetype=MASON)
 

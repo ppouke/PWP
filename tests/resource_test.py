@@ -192,7 +192,7 @@ class TestBlockCollection(object):
         assert resp.status_code == 200
         body = json.loads(resp.data)
         _check_namespace(client, body)
-        assert len(body["items"]) ==3
+        assert len(body["items"]) == 1
         for item in body["items"]:
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
@@ -211,9 +211,6 @@ class TestBlockCollection(object):
         resp = client.get(resp.headers["Location"])
         assert resp.status_code == 200
 
-        # send same data again for 409
-        resp = client.post(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 409
 
 
 class TestBlockItem(object):
@@ -226,7 +223,7 @@ class TestBlockItem(object):
         body = json.loads(resp.data)
         _check_namespace(client, body)
         _check_control_get_method("profile", client, body)
-        _check_control_get_method("collection", client, body)
+        _check_control_get_method("blokus:blocks-all", client, body)
 
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
