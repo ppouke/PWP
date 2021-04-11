@@ -215,7 +215,7 @@ def generate_blocks():
                         "00100"
                         "00100"
                         "00000")
-    
+
     for b in blocks:
         db.session.add(b)
     db.session.commit()
@@ -261,4 +261,3 @@ def generate_test_data():
     db.session.add(block_2)
 
     db.session.commit()
-

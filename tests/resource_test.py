@@ -72,7 +72,7 @@ def _populate_db():
     db.session.commit()
 
 
-def _get_game_json(number=1):
+def _get_game_json(number=2):
     """
     Creates a valid block JSON object to be used for PUT tests.
     """
@@ -82,10 +82,10 @@ def _get_player_json(number=2):
     return {"color": number}
 
 def _get_transaction_json(number=1):
-    return {"player": number, "game" : "game-1" }
+    return {"player": number, "game" : "game-1", "placed_blocks":"000000000" }
 
 def _get_block_json():
-    return {"shape":"0000000000"}
+    return {"shape":"0000000000000000000000000"}
 
 def _check_namespace(client, response):
     """
@@ -215,11 +215,6 @@ class TestBlockCollection(object):
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
 
-        # remove model field for 400
-        valid.pop("shape")
-        resp = client.post(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 400
-
 
 class TestBlockItem(object):
     RESOURCE_URL = "/api/blocks/1/"
@@ -239,17 +234,19 @@ class TestBlockItem(object):
     def test_put(self, client):
         valid = _get_block_json()
 
-        # test with wrong content type
+
         resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
         assert resp.status_code == 415
 
+        # test with wrong content type
         resp = client.put(self.INVALID_URL, json=valid)
         assert resp.status_code == 404
 
-        # remove field for 400
-        valid.pop("shape")
+        # test with valid (only change model)
+        valid["shape"] = "00000000"
         resp = client.put(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 400
+        assert resp.status_code == 204
+
 
     def test_delete(self, client):
         resp = client.delete(self.RESOURCE_URL)
@@ -270,7 +267,6 @@ class TestGameCollection(object):
         body = json.loads(resp.data)
         _check_namespace(client, body)
         _check_control_post_method("blokus:add-game", client, body, "game")
-        _check_control_get_method("blokus:transactions-all", client, body)
         assert len(body["items"]) == 1
         for item in body["items"]:
             _check_control_get_method("self", client, item)
@@ -295,10 +291,6 @@ class TestGameCollection(object):
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
 
-        # remove model field for 400
-        valid.pop("handle")
-        resp = client.post(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 400
 
 
 
@@ -315,6 +307,7 @@ class TestGameItem(object):
         _check_control_get_method("profile", client, body)
         _check_control_get_method("blokus:games-all", client, body)
         _check_control_delete_method("blokus:delete", client, body)
+        _check_control_get_method("blokus:transactions-all", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
 
@@ -423,7 +416,10 @@ class TestTransactionItem(object):
         resp = client.put(self.INVALID_URL, json=valid)
         assert resp.status_code == 404
 
+        # test with valid (only change model)
 
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
 
         # remove field for 400
         valid.pop("player")

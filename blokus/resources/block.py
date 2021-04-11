@@ -1,9 +1,12 @@
-from blokus.utils import BlokusBuilder
-from blokus.models import Block
 import json
+from jsonschema import validate, ValidationError
 from flask import Response, request, url_for
 from flask_restful import Resource
-from sqlalchemy.exc import IntegrityError
+from blokus import db
+from blokus.models import *
+from blokus.constants import *
+from blokus.utils import *
+
 
 class BlockCollection(Resource):
     def get(self):
@@ -27,9 +30,10 @@ class BlockCollection(Resource):
             return create_error_response(400, "Invalid JSON document", str(e))
 
         block=Block(shape=request.json["shape"])
-        id = block.id
+
         db.session.add(block)
         db.session.commit()
+        id = str(block.id)
 
         return Response(status=201, headers={
             "Location": url_for("api.blockitem", block=id)
@@ -48,7 +52,7 @@ class BlockItem(Resource):
             shape=db_block.shape
         )
         body.add_namespace("blokus", LINK_RELATIONS_URL)
-        body.add_control("self", url_for("api.block", block=db_block.id))
+        body.add_control("self", url_for("api.blockitem", block=db_block.id))
         body.add_control("profile", BLOCK_PROFILE)
 
         return Response(json.dumps(body), 200, mimetype=MASON)
@@ -74,10 +78,10 @@ class BlockItem(Resource):
 
     def delete(self, block):
         db_block = Block.query.filter_by(id=block).first()
-        if db_trans == None:
+        if db_block == None:
             return create_error_response(
                 404, "Not found",
-                "No block was found with the id {}".format(transaction)
+                "No block was found with the id {}".format(block)
             )
 
         db.session.delete(db_block)

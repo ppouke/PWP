@@ -28,6 +28,7 @@ class GameItem(Resource):
         body.add_control_delete_game(game)
         body.add_control_add_player(game)
         body.add_control_get_games()
+        body.add_control_get_transactions()
 
         body['players'] = []
 
@@ -107,7 +108,7 @@ class GameCollection(Resource):
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.gamecollection"))
         body.add_control_get_blocks()
-        body.add_control_get_transactions()
+
         body.add_control_add_game()
         body["items"] = []
         for game in Game.query.all():
