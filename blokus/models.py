@@ -2,8 +2,6 @@ import click
 from flask.cli import with_appcontext
 from blokus import db
 
-
-
 class Game(db.Model):
     __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
@@ -60,7 +58,7 @@ class Player(db.Model):
         }
         return schema
 
-    
+
 
 class Block(db.Model):
     __tablename__ = 'block'
@@ -148,7 +146,7 @@ def generate_test_data():
     player_1.used_blocks = "1,2"
     player_2.color = 2
     player_2.used_blocks = "1"
-    
+
     block_1 = Block()
     block_1.shape = ("00000"
                      "00000"
@@ -161,7 +159,7 @@ def generate_test_data():
                      "00100"
                      "00100"
                      "00100")
-    
+
     trans = Transaction()
     trans.game = game
     trans.player = player_1
@@ -172,4 +170,3 @@ def generate_test_data():
     db.session.add(trans)
     db.session.add(block_1)
     db.session.add(block_2)
-

@@ -22,14 +22,14 @@ def app():
         "SQLALCHEMY_DATABASE_URI": "sqlite:///" + db_fname,
         "TESTING": True
     }
-    
+
     app = create_app(config)
-    
+
     with app.app_context():
         db.create_all()
-        
+
     yield app
-    
+
     os.close(db_fd)
     os.unlink(db_fname)
 
@@ -54,7 +54,7 @@ def _get_block():
                         "00000")
     )
 
-def _get_transaction()
+def _get_transaction():
     return Transaction()
 
 
@@ -127,8 +127,8 @@ def test_created_instance(app):
         db_player2 = Player.query.filter_by(id=2).first()
         assert db_player.color == 2
         assert db_player2 in db_game.players
-        assert db_game.placed_blocks = "1234"
-        assert db_block.shape = "0000"
+        assert db_game.placed_blocks == "1234"
+        assert db_block.shape == "0000"
 
         #4 Remove existing models
 
