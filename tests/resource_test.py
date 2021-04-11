@@ -78,8 +78,8 @@ def _get_game_json(number=1):
     """
     return {"handle": "game-{}".format(number)}
 
-def _get_player_json(number=1):
-    return {"color": "{}".format(number)}
+def _get_player_json(number=2):
+    return {"color": number}
 
 def _get_transaction_json(number=1):
     return {"player": number, "game" : "game-1" }
@@ -303,8 +303,8 @@ class TestGameCollection(object):
 
 
 class TestGameItem(object):
-    RESOURCE_URL = "/api/games/game-1"
-    INVALID_URL = "/api/games/game-x"
+    RESOURCE_URL = "/api/games/game-1/"
+    INVALID_URL = "/api/games/game-x/"
 
     def test_get(self, client):
         resp = client.get(self.RESOURCE_URL)
@@ -313,7 +313,7 @@ class TestGameItem(object):
         _check_namespace(client, body)
         _check_control_get_method("self", client, body)
         _check_control_get_method("profile", client, body)
-        _check_control_get_method("collection", client, body)
+        _check_control_get_method("blokus:games-all", client, body)
         _check_control_delete_method("blokus:delete", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
@@ -328,7 +328,7 @@ class TestGameItem(object):
         assert resp.status_code == 404
 
     def test_post(self, client):
-        valid = _get_player_json()
+        valid = _get_player_json(2)
 
         # test with wrong content type
         resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
@@ -337,7 +337,8 @@ class TestGameItem(object):
         # test with valid and see that it exists afterward
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 201
-        assert resp.headers["Location"].endswith(self.RESOURCE_URL + valid["color"] + "/")
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + "players/" + str(valid["color"]) + "/")
+        print(resp.headers["Location"])
         resp = client.get(resp.headers["Location"])
         assert resp.status_code == 200
 
@@ -345,15 +346,10 @@ class TestGameItem(object):
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
 
-        # remove model field for 400
-        valid.pop("color")
-        resp = client.post(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 400
-
 
 class TestPlayerItem(object):
     RESOURCE_URL = "/api/games/game-1/players/1/"
-    INVALID_URL = "/api/games/game-1/players/1/"
+    INVALID_URL = "/api/games/game-1/players/wrong/"
 
     def test_get(self, client):
         resp = client.get(self.RESOURCE_URL)
