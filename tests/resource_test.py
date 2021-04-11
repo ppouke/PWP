@@ -24,6 +24,9 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
 
 # based on http://flask.pocoo.org/docs/1.0/testing/
 # we don't need a client for database testing, just the db handle
+
+# based on http://flask.pocoo.org/docs/1.0/testing/
+# we don't need a client for database testing, just the db handle
 @pytest.fixture
 def app():
     db_fd, db_fname = tempfile.mkstemp()
@@ -42,7 +45,6 @@ def app():
 
     os.close(db_fd)
     os.unlink(db_fname)
-
 
 def _populate_db():
     for i in range(1,4):

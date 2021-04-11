@@ -5,6 +5,7 @@ from flask_restful import Resource
 from blokus import db
 from blokus.models import *
 from blokus.constants import *
+from sqlalchemy.exc import IntegrityError
 from blokus.utils import BlokusBuilder, create_error_response
 
 class GameItem(Resource):
@@ -12,10 +13,10 @@ class GameItem(Resource):
     def get(self, game):
         db_game = Sensor.query.filter_by(handle=game).first()
         if db_game is None:
-            return create_error_response(404, "Not found", 
+            return create_error_response(404, "Not found",
                 "No game was found with the name {}".format(game)
             )
-        
+
         body = BlokusBuilder(
                 handle=db_game.handle,
                 players=db_game.players,
@@ -33,7 +34,7 @@ class GameItem(Resource):
 
     def post(self, game):
         db_game = Game.query.filter_by(handle=game).first()
-        if db_game = None:
+        if db_game == None:
             return create_error_response(
                 404, "Not found",
                 "No game was found with the handle {}".format(game)
@@ -57,7 +58,7 @@ class GameItem(Resource):
             db.session.commit()
             db_game.players.append(player)
         except IntegrityError:
-            return create_error_response(409, "Already exists", 
+            return create_error_response(409, "Already exists",
                 "Player with color '{}' already exists.".format(request.json["color"])
             )
 
@@ -68,7 +69,7 @@ class GameItem(Resource):
     def delete(self, game):
         db_game = Game.query.filter_by(handle=game).first()
         if db_game is None:
-            return create_error_response(404, "Not found", 
+            return create_error_response(404, "Not found",
                 "No game was found with the name {}".format(game)
             )
 
@@ -119,7 +120,7 @@ class GameCollection(Resource):
             db.session.add(game)
             db.session.commit()
         except IntegrityError:
-            return create_error_response(409, "Already exists", 
+            return create_error_response(409, "Already exists",
                 "Game with name '{}' already exists.".format(request.json["handle"])
             )
 

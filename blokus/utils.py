@@ -1,4 +1,4 @@
-  
+
 import json
 from flask import Response, request, url_for
 from blokus.constants import *
@@ -119,9 +119,9 @@ class BlokusBuilder(MasonBuilder):
             method="POST",
             encoding="json",
             title="Add a new player to a game",
-            schema=Player.get_schema())
+            schema=Player.get_schema()
         )
-    
+
     def add_control_add_transaction(self):
         self.add_control(
             "blokus:add-transaction",
@@ -131,7 +131,7 @@ class BlokusBuilder(MasonBuilder):
             title="Add transaction into game",
             schema=Transaction.get_schema()
         )
-    
+
     def add_control_edit_transaction(self, transaction):
         self.add_control(
             "edit",
@@ -149,7 +149,7 @@ class BlokusBuilder(MasonBuilder):
             method="GET",
             title="Get all transactions"
         )
-    
+
     def add_control_delete_transaction(self, transaction):
         self.add_control(
             "blokus:delete",

@@ -3,9 +3,8 @@ from flask_restful import Api
 
 from blokus.resources.game import GameCollection, GameItem
 from blokus.resources.block import BlockCollection, BlockItem
-from blokus.resources.gamestate import GameStateItem
 from blokus.resources.transaction import TransactionFactory, TransactionItem
-from blokus.resources.player import Player
+from blokus.resources.player import PlayerItem
 
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)

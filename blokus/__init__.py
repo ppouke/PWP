@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from blokus.constants import *
 
 db = SQLAlchemy()
 
@@ -13,12 +14,12 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI="sqlite:///" + os.path.join(app.instance_path, "development.db"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
-    
+
     if test_config is None:
         app.config.from_pyfile("config.py", silent=True)
     else:
         app.config.from_mapping(test_config)
-        
+
     try:
         os.makedirs(app.instance_path)
     except OSError:

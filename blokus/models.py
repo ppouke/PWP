@@ -3,14 +3,13 @@ from flask.cli import with_appcontext
 from blokus import db
 
 class Game(db.Model):
-    __tablename__ = 'game'
     id = db.Column(db.Integer, primary_key=True)
     handle = db.Column(db.String, nullable=False)
 
     placed_blocks = db.Column(db.String, nullable=False)
     turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
 
-    players = db.relationship("Player", back_populates="game", cascade="all, delete")
+    players = db.relationship("Player", back_populates="game", cascade="all, delete", foreign_keys = "player_id")
 
     @staticmethod
     def get_schema():
@@ -34,7 +33,6 @@ class Game(db.Model):
 
 
 class Player(db.Model):
-    __tablename__ = 'player'
     id = db.Column(db.Integer, primary_key=True)
     color = db.Column(db.Integer, nullable=False)
     used_blocks = db.Column(db.String)
@@ -61,7 +59,6 @@ class Player(db.Model):
 
 
 class Block(db.Model):
-    __tablename__ = 'block'
     id = db.Column(db.Integer, primary_key=True)
     shape = db.Column(db.String, nullable=False)
 
@@ -80,12 +77,11 @@ class Block(db.Model):
         return schema
 
 class Transaction(db.Model):
-    __tablename__ = 'transaction'
     id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id', ondelete="SET NONE"))
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id', ondelete="CASCADE"))
-    player = db.relationship("Player")
-    game = db.relationship("Game")
+    player = db.relationship("Player", foreign_keys = 'player_id')
+    game = db.relationship("Game", foreign_keys = ' game_id')
     commit = db.Column(db.Integer)
 
     used_blocks = db.Column(db.String)
