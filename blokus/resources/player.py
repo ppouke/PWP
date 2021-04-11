@@ -18,11 +18,11 @@ class PlayerItem(Resource):
                 404, "Not found",
                 "No game was found with the handle {}".format(game)
             )
-        db_player = Player.query.filter_by(color=color, game_id=db_game.id).first()
+        db_player = Player.query.filter_by(color=player, game_id=db_game.id).first()
         if db_player is None:
              return create_error_response(
                 404, "Not found",
-                "No player was found with the color id {}".format(color)
+                "No player was found with the color id {}".format(player)
             )
 
         body = BlokusBuilder(

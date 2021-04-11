@@ -55,7 +55,7 @@ class TransactionFactory(Resource):
 
         if "player" in request.json:
             color = int(request.json["player"])
-            if db_trans.game is None:
+            if transaction.game is None:
                 return create_error_response(
                     404, "Not found",
                     "No game was assigned for the transaction".format(request.json["game"])
@@ -70,7 +70,7 @@ class TransactionFactory(Resource):
 
         if "next_player" in request.json:
             color = int(request.json["next_player"])
-            if db_trans.game is None:
+            if transaction.game is None:
                 return create_error_response(
                     404, "Not found",
                     "No game was assigned for the transaction".format(request.json["game"])

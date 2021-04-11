@@ -11,7 +11,7 @@ from blokus.utils import BlokusBuilder, create_error_response
 class GameItem(Resource):
 	# Get specified existing game resource.
     def get(self, game):
-        db_game = Sensor.query.filter_by(handle=game).first()
+        db_game = Game.query.filter_by(handle=game).first()
         if db_game is None:
             return create_error_response(404, "Not found",
                 "No game was found with the name {}".format(game)
@@ -23,13 +23,25 @@ class GameItem(Resource):
                 board_state=db_game.board_state
             )
         body.add_namespace("blokus", LINK_RELATIONS_URL)
-        body.add_control("self", url_for("api.GameItem", handle=game))
+        body.add_control("self", url_for("api.gameitem", handle=game))
         body.add_control("profile", GAME_PROFILE)
         body.add_control("collection", url_for("api.GameCollection"))
         body.add_control_delete_game(db_game)
         body.add_control_add_player(db_game)
         body.add_control_get_games()
 
+        body['players'] = []
+
+        for db_player in Player.query.filter_by(game_id=db_game.id).all():
+            item = BlokusBuilder(
+                "game_id": db_player.game_id,
+                "color": db_player.color,
+                "used_blocks": db_player.used_blocks,
+            )
+            item.add_control("self", url_for("api.playeritem", game=db_game.handle, player=db_player.color))
+            item.add_control("profile", PLAYER_PROFILE)
+            item.add_control("game", url_for("api.game", game = db_game.handle))
+            body['players'].append(item)
         return Response(json.dumps(body), 200, mimetype=MASON)
 
 	# Add a player to an existing game
@@ -97,7 +109,7 @@ class GameCollection(Resource):
                 players=game.players,
                 board_state=game.board_state
             )
-            item.add_control("self", url_for("api.GameItem", game=game.handle))
+            item.add_control("self", url_for("api.gameitem", game=game.handle))
             item.add_control("profile", GAME_PROFILE)
             body["items"].append(item)
 
