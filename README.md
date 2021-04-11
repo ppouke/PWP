@@ -14,41 +14,33 @@ Dependencies: Found in requirements_TEsb4w3.txt
 
 Database used: SQlite Version 2.6.0
 
-# How to setup and populate database
-The code for the database and testing is found under the /blokus/ directory
+# How to setup the project
+To setup the project run
+```console
+pip install -e .
+```
+in the root folder.
 
-Firstly, it is recommended to initialize a new database/update the existing database to ensure the newest database schema is used.
-
-The database can be initialized using python with:
-```python
-from app import db, State, Game, Player
-db.create_all(()
+# Before running
+Set the enviroment variables for the flask:
+```console
+set FLASK_APP=blokus
+set FLASK_ENV=development
 ```
 
-Model instances can be created/edited/removed with SQLAlchemy procedures.
-
-E.g. Creating a Game instance with State and Player:
-```python
-#Create model instances
-
-player = Player(color = "#CD5C5C")
-state = State(placed_blocks = "0")
-game = Game()
-
-#Add relationships
-game.board_state = state
-game.players.append(player)
-
-#Add and commit to database
-db.session.add(player)
-db.session.add(state)
-db.session.add(game)
-
-db.session.commit()
+# Initializing and populating the database
+To initialize and populate the database run:
+```console
+flask init-db
 ```
 
-The diagram for the relationships between models can be found in the wiki under DL2. Database design and implementation
-  
+# Running the api
+To start the api run:
+```console
+flask run
+```
+
+To access the API connect to localhost:5000/api/
 
 # How to run tests of the database 
   On the command line in the ".../tests" directory simply run: 
