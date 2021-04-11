@@ -161,7 +161,7 @@ class TransactionItem(Resource):
                 )
             color = int(request.json["player"])
 
-            db_player = Player.query.filter_by(game_id=db_trans.game, color=color).first()
+            db_player = Player.query.filter_by(game_id= db_trans.game_id, color=color).first()
             if db_player is None:
                 return create_error_response(
                     404, "Not found",
@@ -184,15 +184,16 @@ class TransactionItem(Resource):
             db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
             db_trans.used_blocks = request.json["used_blocks"]
-        
-        if request.json["commit"] == 1:
-            if db_trans.game is None or db_trans.player is None or db_trans.next_player is None:
-                return create_error_response(
-                    400, "Bad request",
-                    "No player or game was assigned for the transaction")
-            db_trans.game.placed_blocks = db_trans.placed_blocks
-            db_trans.game.turn_information = db_trans.next_player
-            db_trans.player.used_blocks = db_trans.used_blocks
+
+        if "commit" in request.json:
+            if request.json["commit"] == 1:
+                if db_trans.game is None or db_trans.player is None:
+                    return create_error_response(
+                        400, "Bad request",
+                        "No player or game was assigned for the transaction")
+                db_trans.game.placed_blocks = db_trans.placed_blocks
+                db_trans.game.turn_information = db_trans.next_player
+                db_trans.player.used_blocks = db_trans.used_blocks
 
         db.session.commit()
 

@@ -82,10 +82,10 @@ def _get_player_json(number=2):
     return {"color": number}
 
 def _get_transaction_json(number=1):
-    return {"player": number, "game" : "game-1", "placed_blocks":"000000000" }
+    return {"player": number, "game" : "game-1" }
 
 def _get_block_json():
-    return {"shape":"0000000000000000000000000"}
+    return {"shape":"0"*25}
 
 def _check_namespace(client, response):
     """
@@ -242,8 +242,7 @@ class TestBlockItem(object):
         resp = client.put(self.INVALID_URL, json=valid)
         assert resp.status_code == 404
 
-        # test with valid (only change model)
-        valid["shape"] = "00000000"
+        # test with valid
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
 
