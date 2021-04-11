@@ -51,22 +51,34 @@ The diagram for the relationships between models can be found in the wiki under 
   
 
 # How to run tests of the database 
-  On the command line in the ".../blokus/" directory simply run: 
+  On the command line in the ".../tests" directory simply run: 
   ```console 
-  pytest
+  pytest --cov-report=term-missing --cov=blokus
   ```
   
-  The test_database.py file should be detected automatically
+  The test_database.py and resources_test.py file should be detected automatically
   
-  This file tests the database with:
+  The test_databse file tests the database with:
   1. Creating of instance models
   2. Finding instance in database and testing relationships
   3. Updating existing instances
   4. Removing instances
   5. Game - State one to one relationship errors
   6. Mandatory column errors
+  7. testing ondelete funnctionality
+  8. tests automatic generation of blocks
  
-  
+ The resources_test.py tests using requests on the implementation.
+ Tests the following requests:
+ Block Collection : GET, POST
+ Block Item : GET, PUT, DELETE
+ Game Collection : GET, POST
+ Game Item : GET, POST, PUT, DELETE
+ Player Item : GET
+ Transaction Factory : GET, POST
+ Transaction Items : GET, PUT, DELETE
+ 
+ 
   Note. requires pytest installed with:
   ```console
   pip install pytest
