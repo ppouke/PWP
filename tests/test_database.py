@@ -7,7 +7,7 @@ from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError, StatementError
 
 from blokus import create_app, db
-from blokus.models import Game, Player, Transaction, Block
+from blokus.models import *
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
@@ -182,8 +182,6 @@ def test_generate_blocks(app):
     """
     Test adding blocks
     """
-
     with app.app_context():
         generate_blocks()
         assert Block.query.count() == 12
-        
