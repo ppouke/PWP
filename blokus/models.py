@@ -76,8 +76,8 @@ class Block(db.Model):
         props["shape"] = {
             "description": "5*5 long string describing the shape of the block. 0 for free and 1 for reserved slot",
             "type": "string",
-            "minLength": 15,
-            "maxLength": 15,
+            "minLength": 25,
+            "maxLength": 25,
         }
 
         return schema
@@ -136,11 +136,17 @@ class Transaction(db.Model):
 @click.command("init-db")
 @with_appcontext
 def init_db_command():
+    """
+    This function initializes the database
+    """
     db.create_all()
 
 @click.command("genblocks")
 @with_appcontext
 def generate_blocks():
+    """
+    This function populates the database with valid blocks
+    """
     blocks = []
 
     blocks.append(Block())
@@ -222,6 +228,9 @@ def generate_blocks():
 @click.command("testgen")
 @with_appcontext
 def generate_test_data():
+    """
+    This function generates random test data for database
+    """
     game = Game()
     player_1 = Player()
     player_2 = Player()
