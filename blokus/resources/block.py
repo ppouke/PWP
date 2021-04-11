@@ -65,6 +65,12 @@ class BlockItem(Resource):
                 "No block was found with the id {}".format(sensor)
             )
 
+        if not request.json:
+            return create_error_response(
+                415, "Unsupported media type",
+                "Requests must be JSON"
+            )
+
         try:
             validate(request.json, Block.get_schema())
         except ValidationError as e:
