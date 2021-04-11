@@ -2,11 +2,7 @@ import click
 from flask.cli import with_appcontext
 from blokus import db
 
-@event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+
 
 class Game(db.Model):
     __tablename__ = 'game'
@@ -16,24 +12,22 @@ class Game(db.Model):
     placed_blocks = db.Column(db.String, nullable=False)
     turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
 
-    players = db.relationship("Player", back_populates="game")
-
-    current_transaction = db.relationship("Transaction", back_populates="game")
+    players = db.relationship("Player", back_populates="game", cascade="all, delete")
 
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["handle"]
         }
         props = schema["properties"] = {}
         props["handle"] = {
             "description": "Games unique handle",
-            "type". "string"
+            "type": "string"
         }
         props["placed_blocks"] = {
             "description": "Games board state as string",
-            "type". "string"
+            "type": "string"
         }
         return schema
 
@@ -46,22 +40,23 @@ class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     color = db.Column(db.Integer, nullable=False)
     used_blocks = db.Column(db.String)
-    game = db.relationship("Game", back_populates="players", ondelete="CASCADE")
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id', ondelete="CASCADE"))
+    game = db.relationship("Game", back_populates="players")
 
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["color"]
         }
         props = schema["properties"] = {}
         props["color"] = {
             "description": "Players color id (1-4)",
-            "type". "integer"
+            "type": "integer"
         }
         props["used_blocks"] = {
             "description": "Players used blocks comma separated list",
-            "type". "string"
+            "type": "string"
         }
         return schema
 
@@ -75,7 +70,7 @@ class Block(db.Model):
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["shape"]
         }
         props = schema["properties"] = {}
@@ -89,6 +84,8 @@ class Block(db.Model):
 class Transaction(db.Model):
     __tablename__ = 'transaction'
     id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id', ondelete="SET NONE"))
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id', ondelete="CASCADE"))
     player = db.relationship("Player")
     game = db.relationship("Game", ondelete="CASCADE")
     commit = db.Column(db.Integer)
@@ -100,7 +97,7 @@ class Transaction(db.Model):
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["player", "game"]
         }
         props = schema["properties"] = {}
