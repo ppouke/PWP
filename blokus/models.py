@@ -76,8 +76,8 @@ class Block(db.Model):
         props["shape"] = {
             "description": "5*5 long string describing the shape of the block. 0 for free and 1 for reserved slot",
             "type": "string",
-            "minLength": 15,
-            "maxLength": 15,
+            "minLength": 25,
+            "maxLength": 25,
         }
 
         return schema
