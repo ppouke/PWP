@@ -382,6 +382,12 @@ class TestTransactionFactory(object):
         assert resp.status_code == 200
 
 
+        #test with invalid game
+
+        valid["game"] = "game-5"
+        resp = client.post(self.RESOURCE_URL, data=valid)
+        assert resp.status_code == 404
+
         # remove model field for 400
         valid.pop("game")
         resp = client.post(self.RESOURCE_URL, json=valid)

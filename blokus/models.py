@@ -140,12 +140,11 @@ def init_db_command():
     This function initializes the database
     """
     db.create_all()
-"""
-@click.command("genblocks")
-@with_appcontext
+
+
 def generate_blocks():
     """
-    This function populates the database with valid blocks
+This function populates the database with valid blocks
     """
     blocks = []
 
@@ -224,50 +223,4 @@ def generate_blocks():
 
     for b in blocks:
         db.session.add(b)
-    db.session.commit()
-"""
-@click.command("testgen")
-@with_appcontext
-def generate_test_data():
-    """
-    This function generates random test data for database
-    """
-    game = Game()
-    player_1 = Player()
-    player_2 = Player()
-
-    game.players.append(player_1)
-    game.players.append(player_2)
-    game.placed_blocks = "0"*400
-    game.turn_information = player_1
-
-    player_1.color = 1
-    player_1.used_blocks = "1,2"
-    player_2.color = 2
-    player_2.used_blocks = "1"
-
-    block_1 = Block()
-    block_1.shape = ("00000"
-                     "00000"
-                     "00100"
-                     "00000"
-                     "00000")
-    block_2 = Block()
-    block_2.shape = ("00100"
-                     "00100"
-                     "00100"
-                     "00100"
-                     "00100")
-
-    trans = Transaction()
-    trans.game = game
-    trans.player = player_1
-    trans.used_blocks = "1,2"
-    trans.board_state = "0"*400
-
-    db.session.add(game)
-    db.session.add(trans)
-    db.session.add(block_1)
-    db.session.add(block_2)
-
     db.session.commit()
