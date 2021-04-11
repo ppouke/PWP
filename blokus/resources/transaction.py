@@ -82,7 +82,7 @@ class TransactionFactory(Resource):
             db_game.board_state = db_trans.board_state
             db_game.turn_information = db_trans.next_player
             db_player.used_blocks = db_trans.used_blocks
-
+        id = transaction.id
         try:
             db.session.add(transaction)
             db.session.commit()
@@ -90,7 +90,7 @@ class TransactionFactory(Resource):
             pass
 
         return Response(status=201, headers={
-            "Location": url_for("api.transaction", transaction=transaction.id)
+            "Location": url_for("api.transactionitem", transaction=id)
         })
 
 class TransactionItem()
