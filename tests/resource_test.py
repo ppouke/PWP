@@ -63,15 +63,16 @@ def _get_game_json(number=1):
     """
     Creates a valid block JSON object to be used for PUT tests.
     """
-
     return {"handle": "game-{}".format(number)}
 
 def _get_player_json(number=1):
     return {"color": "{}".format(number)}
 
 def _get_transaction_json(number=1):
-    return {"player": "{}".format(number), "game" = "game-1" }
+    return {"player": "{}".format(number), "game" : "game-1" }
 
+def _get_block_json():
+    return {"shape":"0000000000"}
 
 def _check_namespace(client, response):
     """
@@ -125,12 +126,14 @@ def _check_control_put_method(ctrl, client, obj, tested):
     assert method == "put"
     assert encoding == "json"
     body = None
-    if tested = "game":
+    if tested == "game":
         body = _get_game_json()
-    else if tested = "player":
+    elif tested == "player":
         body = _get_player_json()
-    else if tested = "transaction":
+    elif tested == "transaction":
         body = _get_transaction_json()
+    elif tested == "block":
+        body = _get_block_json()
     body["name"] = obj["name"]
     validate(body, schema)
     resp = client.put(href, json=body)
@@ -154,12 +157,14 @@ def _check_control_post_method(ctrl, client, obj, tested):
     assert method == "post"
     assert encoding == "json"
     body = None
-    if tested = "game":
+    if tested == "game":
         body = _get_game_json()
-    else if tested = "player":
+    elif tested == "player":
         body = _get_player_json()
-    else if tested = "transaction":
+    elif tested == "transaction":
         body = _get_transaction_json()
+    elif tested == "block":
+        body = _get_block_json()
     validate(body, schema)
     resp = client.post(href, json=body)
     assert resp.status_code == 201
@@ -171,13 +176,36 @@ class TestBlockCollection(object):
 
     def test_get(self, client):
         resp = client.get(self.RESOURCE_URL)
-        assert.resp.status_code == 200
+        assert resp.status_code == 200
         body = json.loads(resp.data)
         _check_namespace(client, body)
         assert len(body["items"]) ==3
         for item in body["items"]:
             _check_control_get_method("self", client, item)
             _check_control_get_method("profile", client, item)
+
+    def test_post(self, client):
+        valid = _get_block_json()
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        #assert resp.headers["Location"].endswith(self.RESOURCE_URL + "1" + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # remove model field for 400
+        valid.pop("shape")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
 
 
 class TestBlockItem(object):
@@ -195,6 +223,29 @@ class TestBlockItem(object):
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
 
+    def test_put(self, client):
+        valid = _get_block_json()
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # remove field for 400
+        valid.pop("shape")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
 
 class TestGameCollection(object):
 
@@ -206,6 +257,7 @@ class TestGameCollection(object):
         body = json.loads(resp.data)
         _check_namespace(client, body)
         _check_control_post_method("blokus:add-game", client, body, "game")
+        _check_control_get_method("blokus:transactions-all", client, body)
         assert len(body["items"]) == 1
         for item in body["items"]:
             _check_control_get_method("self", client, item)
@@ -303,6 +355,87 @@ class TestPlayerItem(object):
         assert resp.status_code == 404
 
 class TestTransactionFactory(object):
-    
+    RESOURCE_URL = "/api/transactions/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_post_method("blokus:add-transaction", client, body, "transaction")
+        assert len(body["items"]) == 1
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+
+    def test_post(self, client):
+        valid = _get_transaction_json()
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + "1" + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # remove model field for 400
+        valid.pop("game")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
 
 class TestTransactionItem(object):
+    RESOURCE_URL = "/api/transactions/1/"
+    INVALID_URL = "/api/transactions/#/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("self", client, body)
+
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+
+    def test_put(self, client):
+        valid = _get_transaction_json()
+
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+
+        # test with another player's name
+        valid["player"] = "2"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # test with valid (only change model)
+        valid["player"] = "1"
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+        # remove field for 400
+        valid.pop("player")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
