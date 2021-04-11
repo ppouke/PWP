@@ -7,9 +7,9 @@ class Game(db.Model):
     handle = db.Column(db.String, nullable=False)
 
     placed_blocks = db.Column(db.String, nullable=False)
-    turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
+    turn_information = db.relationship("Player")
 
-    players = db.relationship("Player", back_populates="game", cascade="all, delete", foreign_keys = "player_id")
+    players = db.relationship("Player", back_populates="game", cascade="all, delete")
 
     @staticmethod
     def get_schema():
