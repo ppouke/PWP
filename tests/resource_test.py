@@ -51,7 +51,7 @@ def _populate_db():
         color=1,
         used_blocks=""
     )
-    game = Game(handle="best game", placed_blocks="0"*400)
+    game = Game(handle="game-1", placed_blocks="0"*400)
     block = Block(shape=("00000"
                         "00000"
                         "00100"
@@ -82,7 +82,7 @@ def _get_player_json(number=1):
     return {"color": "{}".format(number)}
 
 def _get_transaction_json(number=1):
-    return {"player": "{}".format(number), "game" : "game-1" }
+    return {"player": number, "game" : "game-1" }
 
 def _get_block_json():
     return {"shape":"0000000000"}
@@ -352,8 +352,8 @@ class TestGameItem(object):
 
 
 class TestPlayerItem(object):
-    RESOURCE_URL = "/api/games/games-1/1/"
-    INVALID_URL = "/api/games/games-1/#/"
+    RESOURCE_URL = "/api/games/game-1/players/1/"
+    INVALID_URL = "/api/games/game-1/players/1/"
 
     def test_get(self, client):
         resp = client.get(self.RESOURCE_URL)
@@ -392,13 +392,10 @@ class TestTransactionFactory(object):
         # test with valid and see that it exists afterward
         resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 201
-        assert resp.headers["Location"].endswith(self.RESOURCE_URL + "1" + "/")
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + "2/")
         resp = client.get(resp.headers["Location"])
         assert resp.status_code == 200
 
-        # send same data again for 409
-        resp = client.post(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 409
 
         # remove model field for 400
         valid.pop("game")
@@ -430,15 +427,7 @@ class TestTransactionItem(object):
         resp = client.put(self.INVALID_URL, json=valid)
         assert resp.status_code == 404
 
-        # test with another player's name
-        valid["player"] = "2"
-        resp = client.put(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 409
 
-        # test with valid (only change model)
-        valid["player"] = "1"
-        resp = client.put(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 204
 
         # remove field for 400
         valid.pop("player")
