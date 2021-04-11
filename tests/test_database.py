@@ -54,6 +54,7 @@ def _get_block():
                         "00000")
     )
 
+
 def _get_transaction():
     return Transaction()
 
