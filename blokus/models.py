@@ -2,11 +2,6 @@ import click
 from flask.cli import with_appcontext
 from blokus import db
 
-@event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection, connection_record):
-    cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
 
 class Game(db.Model):
     __tablename__ = 'game'
@@ -23,17 +18,17 @@ class Game(db.Model):
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["handle"]
         }
         props = schema["properties"] = {}
         props["handle"] = {
             "description": "Games unique handle",
-            "type". "string"
+            "type" : "string"
         }
         props["placed_blocks"] = {
             "description": "Games board state as string",
-            "type". "string"
+            "type" : "string"
         }
         return schema
 
@@ -51,21 +46,21 @@ class Player(db.Model):
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["color"]
         }
         props = schema["properties"] = {}
         props["color"] = {
             "description": "Players color id (1-4)",
-            "type". "integer"
+            "type" : "integer"
         }
         props["used_blocks"] = {
             "description": "Players used blocks comma separated list",
-            "type". "string"
+            "type" : "string"
         }
         return schema
 
-    
+
 
 class Block(db.Model):
     __tablename__ = 'block'
@@ -75,7 +70,7 @@ class Block(db.Model):
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["shape"]
         }
         props = schema["properties"] = {}
@@ -100,7 +95,7 @@ class Transaction(db.Model):
     @staticmethod
     def get_schema():
         schema = {
-            "type" = "object",
+            "type" : "object",
             "required": ["player", "game"]
         }
         props = schema["properties"] = {}
@@ -151,7 +146,7 @@ def generate_test_data():
     player_1.used_blocks = "1,2"
     player_2.color = 2
     player_2.used_blocks = "1"
-    
+
     block_1 = Block()
     block_1.shape = ("00000"
                      "00000"
@@ -164,7 +159,7 @@ def generate_test_data():
                      "00100"
                      "00100"
                      "00100")
-    
+
     trans = Transaction()
     trans.game = game
     trans.player = player_1
@@ -175,4 +170,3 @@ def generate_test_data():
     db.session.add(trans)
     db.session.add(block_1)
     db.session.add(block_2)
-
