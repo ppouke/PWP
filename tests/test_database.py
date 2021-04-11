@@ -138,7 +138,7 @@ def test_created_instance(app):
         db.session.delete(trans)
         db.session.delete(block)
 
-        db_handle.session.commit()
+        db.session.commit()
 
         assert Player.query.count() == 0
         assert Game.query.count() == 0
@@ -160,7 +160,7 @@ def test_player_ondelete_game(app):
         db.session.commit()
         db.session.delete(game)
         db.session.commit()
-        assert player is None
+        assert Player.query.count() == 0
 
 
 def test_mandatory_columns(app):
