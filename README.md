@@ -70,12 +70,19 @@ The diagram for the relationships between models can be found in the wiki under 
  
  The resources_test.py tests using requests on the implementation.
  Tests the following requests:
+ 
  Block Collection : GET, POST
+ 
  Block Item : GET, PUT, DELETE
+ 
  Game Collection : GET, POST
+ 
  Game Item : GET, POST, PUT, DELETE
+ 
  Player Item : GET
+ 
  Transaction Factory : GET, POST
+ 
  Transaction Items : GET, PUT, DELETE
  
  
