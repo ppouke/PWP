@@ -15,7 +15,7 @@ class BlockCollection(Resource):
             item = BlokusBuilder(
                 shape = db_block.shape
             )
-            item.add_control("self", url_for("api.blockitem", block=db_sensor.id))
+            item.add_control("self", url_for("api.blockitem", block=db_block.id))
             item.add_control("profile", BLOCK_PROFILE)
             body["items"].append(item)
 

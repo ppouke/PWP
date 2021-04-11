@@ -6,6 +6,7 @@ from blokus import db
 from blokus.models import *
 from blokus.constants import *
 from blokus.utils import BlokusBuilder, create_error_response
+from sqlalchemy.exc import IntegrityError
 
 class TransactionFactory(Resource):
     def get(self):
@@ -21,7 +22,7 @@ class TransactionFactory(Resource):
                 used_blocks = db_trans.used_blocks,
                 board_state = db_trans.board_state
             )
-            item.add_control("self", url_for("api.transactionitem", block=db_trans.id))
+            item.add_control("self", url_for("api.transactionitem", transaction=db_trans.id))
             item.add_control("profile", TRANSACTION_PROFILE)
 
             item.add_control_get_game(db_trans.game.handle)
@@ -54,8 +55,12 @@ class TransactionFactory(Resource):
 
         if "player" in request.json:
             color = int(request.json["player"])
-
-            db_player = Player.query.filter_by(color=color).first()
+            if db_trans.game is None:
+                return create_error_response(
+                    404, "Not found",
+                    "No game was assigned for the transaction".format(request.json["game"])
+                )
+            db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
             if db_player is None:
                 return create_error_response(
                     404, "Not found",
@@ -65,8 +70,12 @@ class TransactionFactory(Resource):
 
         if "next_player" in request.json:
             color = int(request.json["next_player"])
-
-            db_player = Player.query.filter_by(game_id=transaction.id, color=color).first()
+            if db_trans.game is None:
+                return create_error_response(
+                    404, "Not found",
+                    "No game was assigned for the transaction".format(request.json["game"])
+                )
+            db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
             if db_player is None:
                 return create_error_response(
                     404, "Not found",
@@ -74,9 +83,9 @@ class TransactionFactory(Resource):
                 )
             transaction.next_player = db_player
 
-        if "board_state" in requests.json:
+        if "board_state" in request.json:
             transaction.board_state = request.json["board_state"]
-        if "used_blocks" in requests.json:
+        if "used_blocks" in request.json:
             transaction.board_state = request.json["used_blocks"]
 
         
@@ -107,7 +116,7 @@ class TransactionItem(Resource):
         )
         body.add_namespace("blokus", LINK_RELATIONS_URL)
 
-        body.add_control("self", url_for("api.transaction", transactionitem=transaction))
+        body.add_control("self", url_for("api.transactionitem", transaction=transaction))
         body.add_control("profile", TRANSACTION_PROFILE)
         body.add_control_edit_transaction(transaction)
         body.add_control_delete_transaction(transaction)
@@ -169,17 +178,16 @@ class TransactionItem(Resource):
                 )
             db_trans.next_player = db_player
 
-        if "board_state" in requests.json:
+        if "board_state" in request.json:
             db_trans.board_state = request.json["board_state"]
-        if "used_blocks" in requests.json:
+        if "used_blocks" in request.json:
             db_trans.board_state = request.json["used_blocks"]
 
-        if requests.json["commit"] == 1:
+        if request.json["commit"] == 1:
             if db_trans.game is None or db_trans.player is None:
                 return create_error_response(
                     400, "Bad request",
                     "No player or game was assigned for the transaction")
-                )
             db_trans.game.board_state = db_trans.board_state
             db_trans.game.turn_information = db_trans.next_player
             db_trans.player.used_blocks = db_trans.used_blocks
