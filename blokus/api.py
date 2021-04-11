@@ -9,4 +9,5 @@ from blocus.resources.transaction import TransactionItem
 api_bp = Blueprint("api", __name__)
 api = Api(api_bp)
 
-api.add_resource(GameCollection, "")
+api.add_resource(GameCollection, "/api/games/")
+api.add_resource(GameItem, "/api/games/<game>/")
