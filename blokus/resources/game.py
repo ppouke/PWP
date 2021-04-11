@@ -34,9 +34,9 @@ class GameItem(Resource):
 
         for db_player in Player.query.filter_by(game_id=db_game.id).all():
             item = BlokusBuilder(
-                "game_id": db_player.game_id,
-                "color": db_player.color,
-                "used_blocks": db_player.used_blocks,
+                game_id =  db_player.game_id,
+                color =  db_player.color,
+                used_blocks =  db_player.used_blocks,
             )
             item.add_control("self", url_for("api.playeritem", game=db_game.handle, player=db_player.color))
             item.add_control("profile", PLAYER_PROFILE)
