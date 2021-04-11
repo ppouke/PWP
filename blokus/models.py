@@ -85,7 +85,7 @@ class Transaction(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('game.id', ondelete="SET NONE"))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id', ondelete="CASCADE"))
     player = db.relationship("Player")
-    game = db.relationship("Game", ondelete="CASCADE")
+    game = db.relationship("Game")
     commit = db.Column(db.Integer)
 
     used_blocks = db.Column(db.String)
