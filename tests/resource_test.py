@@ -107,7 +107,7 @@ def _check_control_delete_method(ctrl, client, obj):
     resp = client.delete(href)
     assert resp.status_code == 204
 
-def _check_control_put_method(ctrl, client, obj):
+def _check_control_put_method(ctrl, client, obj, tested):
     """
     Checks a PUT type control from a JSON object be it root document or an item
     in a collection. In addition to checking the "href" attribute, also checks
@@ -125,11 +125,11 @@ def _check_control_put_method(ctrl, client, obj):
     assert method == "put"
     assert encoding == "json"
     body = None
-    if testee = "game":
+    if tested = "game":
         body = _get_game_json()
-    else if testee = "player":
+    else if tested = "player":
         body = _get_player_json()
-    else if testee = "transaction":
+    else if tested = "transaction":
         body = _get_transaction_json()
     body["name"] = obj["name"]
     validate(body, schema)
@@ -154,11 +154,11 @@ def _check_control_post_method(ctrl, client, obj, testee):
     assert method == "post"
     assert encoding == "json"
     body = None
-    if testee = "game":
+    if tested = "game":
         body = _get_game_json()
-    else if testee = "player":
+    else if tested = "player":
         body = _get_player_json()
-    else if testee = "transaction":
+    else if tested = "transaction":
         body = _get_transaction_json()
     validate(body, schema)
     resp = client.post(href, json=body)
@@ -196,7 +196,9 @@ class TestBlockItem(object):
         assert resp.status_code == 404
 
 
+
 class TestGameCollection(object):
+
     RESOURCE_URL = "/api/games/"
 
     def test_get(self, client):
@@ -204,7 +206,7 @@ class TestGameCollection(object):
         assert resp.status_code == 200
         body = json.loads(resp.data)
         _check_namespace(client, body)
-        _check_control_post_method("blokus:add-game", client, body)
+        _check_control_post_method("blokus:add-game", client, body, "game")
         assert len(body["items"]) == 1
         for item in body[]
 
