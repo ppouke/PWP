@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from blokus.utils import BlokusBuilder, create_error_response
 
 class GameItem(Resource):
-
+	# Get specified existing game resource.
     def get(self, game):
         db_game = Sensor.query.filter_by(handle=game).first()
         if db_game is None:
@@ -32,6 +32,7 @@ class GameItem(Resource):
 
         return Response(json.dumps(body), 200, mimetype=MASON)
 
+	# Add a player to an existing game
     def post(self, game):
         db_game = Game.query.filter_by(handle=game).first()
         if db_game == None:
@@ -66,6 +67,7 @@ class GameItem(Resource):
             "Location": url_for("api.PlayerItem", color=request.json["color"])
         })
 
+	# Delete an existing game resource
     def delete(self, game):
         db_game = Game.query.filter_by(handle=game).first()
         if db_game is None:
@@ -79,7 +81,7 @@ class GameItem(Resource):
         return Response(status=204)
 
 class GameCollection(Resource):
-
+	# Get a list of existing games
     def get(self):
         body = BlokusBuilder()
 
@@ -101,6 +103,7 @@ class GameCollection(Resource):
 
         return Response(json.dumps(body), 200, mimetype=MASON)
 
+	# Create a new game
     def post(self):
         if not request.json:
             return create_error_response(415, "Unsupported media type",
