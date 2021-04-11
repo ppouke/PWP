@@ -186,7 +186,7 @@ class TransactionItem(Resource):
             db_trans.used_blocks = request.json["used_blocks"]
 
         if request.json["commit"] == 1:
-            if db_trans.game is None or db_trans.player is None:
+            if db_trans.game is None or db_trans.player is None or db_trans.next_player is None:
                 return create_error_response(
                     400, "Bad request",
                     "No player or game was assigned for the transaction")
