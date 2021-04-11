@@ -81,8 +81,8 @@ def _get_game_json(number=2):
 def _get_player_json(number=2):
     return {"color": number}
 
-def _get_transaction_json(number=1):
-    return {"player": number, "game" : "game-1" }
+def _get_transaction_json(player = 1, game=1):
+    return {"player": player, "game" : "game-{}".format(game) }
 
 def _get_block_json():
     return {"shape":"0"*25}
@@ -383,10 +383,26 @@ class TestTransactionFactory(object):
 
 
         #test with invalid game
-
-        valid["game"] = "game-5"
-        resp = client.post(self.RESOURCE_URL, data=valid)
+        valid = _get_transaction_json(game = 5)
+        resp = client.post(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 404
+
+        #test with invalid player
+        valid = _get_transaction_json(player = 2)
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
+
+
+        #test with invalid next player
+        valid["player"] = 1
+        valid["next_player"] = 2
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
+
+        #test with valid next player
+        valid["next_player"] = 1
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
 
         # remove model field for 400
         valid.pop("game")
@@ -423,10 +439,47 @@ class TestTransactionItem(object):
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
 
+
+        #test with invalid game
+        valid = _get_transaction_json(game = 5)
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
+
+        #test with invalid player
+        valid = _get_transaction_json(player = 2)
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
+
+
+        #test with invalid next player
+        valid["player"] = 1
+        valid["next_player"] = 2
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 404
+
+        #test with valid next player
+        valid["next_player"] = 1
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+
+        #commit
+        valid["commit"] = 1
+        valid["used_blocks"] = "111"
+        valid["placed_blocks"] = "1"*400
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+
+
         # remove field for 400
         valid.pop("player")
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400
+
+
+
+
+
 
     def test_delete(self, client):
         resp = client.delete(self.RESOURCE_URL)
