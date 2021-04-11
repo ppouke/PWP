@@ -64,13 +64,13 @@ def _get_game_json(number=1):
     Creates a valid block JSON object to be used for PUT tests.
     """
 
-    return {"name": "block-{}".format(number), "": "extrasensor"}
+    return {"handle": "game-{}".format(number)}
 
 def _get_player_json(number=1):
-    return None
+    return {"color": "{}".format(number)}
 
 def _get_transaction_json(number=1):
-    return None
+    return {"player": "{}".format(number), "game" = "game-1" }
 
 
 def _check_namespace(client, response):
@@ -112,7 +112,7 @@ def _check_control_put_method(ctrl, client, obj, tested):
     Checks a PUT type control from a JSON object be it root document or an item
     in a collection. In addition to checking the "href" attribute, also checks
     that method, encoding and schema can be found from the control. Also
-    validates a valid sensor against the schema of the control to ensure that
+    validates a valid game/player/transaction against the schema of the control to ensure that
     they match. Finally checks that using the control results in the correct
     status code of 204.
     """
@@ -136,12 +136,12 @@ def _check_control_put_method(ctrl, client, obj, tested):
     resp = client.put(href, json=body)
     assert resp.status_code == 204
 
-def _check_control_post_method(ctrl, client, obj, testee):
+def _check_control_post_method(ctrl, client, obj, tested):
     """
     Checks a POST type control from a JSON object be it root document or an item
     in a collection. In addition to checking the "href" attribute, also checks
     that method, encoding and schema can be found from the control. Also
-    validates a valid sensor against the schema of the control to ensure that
+    validates a valid game/player/transaction against the schema of the control to ensure that
     they match. Finally checks that using the control results in the correct
     status code of 201.
     """
@@ -196,7 +196,6 @@ class TestBlockItem(object):
         assert resp.status_code == 404
 
 
-
 class TestGameCollection(object):
 
     RESOURCE_URL = "/api/games/"
@@ -208,12 +207,102 @@ class TestGameCollection(object):
         _check_namespace(client, body)
         _check_control_post_method("blokus:add-game", client, body, "game")
         assert len(body["items"]) == 1
-        for item in body[]
+        for item in body["items"]:
+            _check_control_get_method("self", client, item)
+            _check_control_get_method("profile", client, item)
+
+
+    def test_post(self, client):
+        valid = _get_game_json()
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + valid["handle"] + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # remove model field for 400
+        valid.pop("handle")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
+
 
 class TestGameItem(object):
+    RESOURCE_URL = "/api/games/game-1"
+    INVALID_URL = "/api/games/game-x"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)
+        _check_control_delete_method("blokus:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+
+
+    def test_delete(self, client):
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+
+    def test_post(self, client):
+        valid = _get_player_json()
+
+        # test with wrong content type
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + valid["color"] + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+
+        # send same data again for 409
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+
+        # remove model field for 400
+        valid.pop("color")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+
 
 class TestPlayerItem(object):
+    RESOURCE_URL = "/api/games/games-1/1/"
+    INVALID_URL = "/api/games/games-1/#/"
+
+    def test_get(self, client):
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("self", client, body)
+        _check_control_get_method("game", client, body)
+
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
 
 class TestTransactionFactory(object):
+    
 
 class TestTransactionItem(object):
