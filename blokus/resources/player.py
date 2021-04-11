@@ -21,7 +21,7 @@ class PlayerItem(Resource):
             used_blocks = db_player.used_blocks
         )
 
-        db_game= Game.query.filter_by(id = db_player.game_id)
+        db_game= db_player.game
 
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.player", game = db_game.handle , player = db_player.color))

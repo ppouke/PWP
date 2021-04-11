@@ -20,6 +20,20 @@ class BlockCollection(Resource):
             body["items"].append(item)
         
         return Response(json.dumps(body), 200, mimetype=MASON)
+    def post(self):
+        try:
+            validate(request.json, Block.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+        
+        block=Block(shape=request.json["shape"])
+        id = block.id
+        db.session.add(block)
+        db.session.commit()
+
+        return Response(status=201, headers={
+            "Location": url_for("api.blockitem", block=id)
+        })
 
 class BlockItem(Resource):
     def get(self, block):
@@ -38,3 +52,36 @@ class BlockItem(Resource):
         body.add_control("profile", BLOCK_PROFILE)
         
         return Response(json.dumps(body), 200, mimetype=MASON)
+
+    def put(self, block):
+        db_block = Block.query.filter_by(id=block).first()
+        if db_block is None:
+            return create_error_response(
+                404, "Not Found",
+                "No block was found with the id {}".format(sensor)
+            )
+        
+        try:
+            validate(request.json, Block.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+        
+        db_block.shape=request.json["shape"]
+
+        db.session.commit()
+
+        return Response(status=204)
+    
+    def delete(self, block):
+        db_block = Block.query.filter_by(id=block).first()
+        if db_trans = None:
+            return create_error_response(
+                404, "Not found",
+                "No block was found with the id {}".format(transaction)
+            )
+        
+        db.session.delete(db_block)
+        db.session.commit()
+
+        return Response(status=204)
+    
