@@ -20,12 +20,11 @@ class GameItem(Resource):
         body = BlokusBuilder(
                 handle=db_game.handle,
                 players=db_game.players,
-                board_state=db_game.board_state
+                placed_blocks=db_game.placed_blocks
             )
         body.add_namespace("blokus", LINK_RELATIONS_URL)
-        body.add_control("self", url_for("api.gameitem", handle=game))
+        body.add_control("self", url_for("api.gameitem", game=game))
         body.add_control("profile", GAME_PROFILE)
-        body.add_control("collection", url_for("api.GameCollection"))
         body.add_control_delete_game(db_game)
         body.add_control_add_player(db_game)
         body.add_control_get_games()
@@ -37,10 +36,11 @@ class GameItem(Resource):
                 game_id = db_player.game_id,
                 color = db_player.color,
                 used_blocks = db_player.used_blocks,
+
             )
-            item.add_control("self", url_for("api.playeritem", game=db_game.handle, player=db_player.color))
+            item.add_control("self", url_for("api.playeritem", game=db_game.handle, player=str(db_player.color)))
             item.add_control("profile", PLAYER_PROFILE)
-            item.add_control("game", url_for("api.game", game = db_game.handle))
+            item.add_control("game", url_for("api.gameitem", game = db_game.handle))
             body['players'].append(item)
         return Response(json.dumps(body), 200, mimetype=MASON)
 
@@ -62,21 +62,28 @@ class GameItem(Resource):
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
+
+        db_player = Player.query.filter_by(game_id=db_game.id, color=request.json["color"]).first()
+        if not db_player is None:
+            return create_error_response(409, "Already exists",
+            "Player with color '{}' already exists.".format(request.json["color"])
+    )
         player = Player(
             color=request.json["color"]
         )
 
         try:
             db.session.add(player)
-            db.session.commit()
             db_game.players.append(player)
+            db.session.commit()
+
         except IntegrityError:
             return create_error_response(409, "Already exists",
                 "Player with color '{}' already exists.".format(request.json["color"])
             )
 
         return Response(status=201, headers={
-            "Location": url_for("api.PlayerItem", color=request.json["color"])
+            "Location": url_for("api.playeritem", player = str(request.json["color"]), game = db_game.handle)
         })
 
 	# Delete an existing game resource
@@ -98,7 +105,7 @@ class GameCollection(Resource):
         body = BlokusBuilder()
 
         body.add_namespace("blokus", LINK_RELATIONS_URL)
-        body.add_control("self", url_for("api.GameCollection"))
+        body.add_control("self", url_for("api.gamecollection"))
         body.add_control_get_blocks()
         body.add_control_get_transactions()
         body.add_control_add_game()
@@ -107,7 +114,7 @@ class GameCollection(Resource):
             item = BlokusBuilder(
                 handle=game.handle,
                 players=game.players,
-                board_state=game.board_state
+                placed_blocks = game.placed_blocks
             )
             item.add_control("self", url_for("api.gameitem", game=game.handle))
             item.add_control("profile", GAME_PROFILE)
@@ -140,5 +147,5 @@ class GameCollection(Resource):
             )
 
         return Response(status=201, headers={
-            "Location": url_for("api.GameItem", game=request.json["handle"])
+            "Location": url_for("api.gameitem", game=request.json["handle"])
         })

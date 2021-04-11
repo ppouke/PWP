@@ -22,7 +22,7 @@ class TransactionFactory(Resource):
                 used_blocks = db_trans.used_blocks,
                 board_state = db_trans.board_state
             )
-            item.add_control("self", url_for("api.transactionitem", transaction=db_trans.id))
+            item.add_control("self", url_for("api.transactionitem", transaction=str(db_trans.id)))
             item.add_control("profile", TRANSACTION_PROFILE)
 
             item.add_control_get_game(db_trans.game.handle)
@@ -88,14 +88,16 @@ class TransactionFactory(Resource):
         if "used_blocks" in request.json:
             transaction.board_state = request.json["used_blocks"]
 
-        
-        id = transaction.id
+
+        id = str(transaction.id)
         try:
             db.session.add(transaction)
             db.session.commit()
         except IntegrityError:
             pass
 
+        id = str(transaction.id)
+        print(id)
         return Response(status=201, headers={
             "Location": url_for("api.transactionitem", transaction=id)
         })

@@ -31,8 +31,8 @@ class PlayerItem(Resource):
         )
 
         body.add_namespace("blokus", LINK_RELATIONS_URL)
-        body.add_control("self", url_for("api.player", game = db_game.handle , player = db_player.color))
-        body.add_contol("profile", PLAYER_PROFILE)
-        body.add_control("game", url_for("api.game", game = db_game.handle))
+        body.add_control("self", url_for("api.playeritem", game = db_game.handle , player = str(db_player.color)))
+        body.add_control("profile", PLAYER_PROFILE)
+        body.add_control("game", url_for("api.gameitem", game = db_game.handle))
 
         return Response(json.dumps(body), 200, mimetype = MASON)
