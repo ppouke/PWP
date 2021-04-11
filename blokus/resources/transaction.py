@@ -184,7 +184,7 @@ class TransactionItem(Resource):
             db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
             db_trans.used_blocks = request.json["used_blocks"]
-
+        
         if request.json["commit"] == 1:
             if db_trans.game is None or db_trans.player is None or db_trans.next_player is None:
                 return create_error_response(
