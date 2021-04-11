@@ -9,7 +9,7 @@ class Game(db.Model):
     placed_blocks = db.Column(db.String, nullable=False)
     turn_information = db.Column(db.Integer, db.ForeignKey("player.id"))
 
-    players = db.relationship("Player", back_populates="game", cascade="all, delete")
+    players = db.relationship("Player", back_populates="game", cascade="all, delete", foreign_keys = "player_id")
 
     @staticmethod
     def get_schema():
@@ -78,10 +78,10 @@ class Block(db.Model):
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id', ondelete="SET NONE"))
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id', ondelete="CASCADE"))
-    player = db.relationship("Player")
-    game = db.relationship("Game", ondelete="CASCADE")
+    player = db.relationship("Player", foreign_keys = 'player_id')
+    game = db.relationship("Game", foreign_keys = ' game_id')
     commit = db.Column(db.Integer)
 
     used_blocks = db.Column(db.String)
