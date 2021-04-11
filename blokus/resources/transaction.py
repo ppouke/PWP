@@ -83,10 +83,10 @@ class TransactionFactory(Resource):
                 )
             transaction.next_player = db_player
 
-        if "board_state" in request.json:
-            transaction.board_state = request.json["board_state"]
+        if "placed_blocks" in request.json:
+            transaction.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
-            transaction.board_state = request.json["used_blocks"]
+            transaction.used_blocks = request.json["used_blocks"]
 
 
         id = str(transaction.id)
@@ -180,17 +180,17 @@ class TransactionItem(Resource):
                 )
             db_trans.next_player = db_player
 
-        if "board_state" in request.json:
-            db_trans.board_state = request.json["board_state"]
+        if "placed_blocks" in request.json:
+            db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
-            db_trans.board_state = request.json["used_blocks"]
+            db_trans.used_blocks = request.json["used_blocks"]
 
         if request.json["commit"] == 1:
             if db_trans.game is None or db_trans.player is None:
                 return create_error_response(
                     400, "Bad request",
                     "No player or game was assigned for the transaction")
-            db_trans.game.board_state = db_trans.board_state
+            db_trans.game.placed_blocks = db_trans.placed_blocks
             db_trans.game.turn_information = db_trans.next_player
             db_trans.player.used_blocks = db_trans.used_blocks
 

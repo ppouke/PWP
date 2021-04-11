@@ -4,7 +4,7 @@ from blokus import db
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    handle = db.Column(db.String, nullable=False, unique = True)
+    handle = db.Column(db.String, nullable=False, unique=True)
 
     placed_blocks = db.Column(db.String)
     turn_information = db.relationship("Player")
@@ -24,7 +24,9 @@ class Game(db.Model):
         }
         props["placed_blocks"] = {
             "description": "Games board state as string",
-            "type": "string"
+            "type": "string",
+            "minLength": 400,
+            "maxLength": 400,
         }
         return schema
 
@@ -48,7 +50,9 @@ class Player(db.Model):
         props = schema["properties"] = {}
         props["color"] = {
             "description": "Players color id (1-4)",
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
         }
         props["used_blocks"] = {
             "description": "Players used blocks comma separated list",
@@ -71,7 +75,9 @@ class Block(db.Model):
         props = schema["properties"] = {}
         props["shape"] = {
             "description": "5*5 long string describing the shape of the block. 0 for free and 1 for reserved slot",
-            "type": "string"
+            "type": "string",
+            "minLength": 15,
+            "maxLength": 15,
         }
 
         return schema
@@ -97,7 +103,9 @@ class Transaction(db.Model):
         props = schema["properties"] = {}
         props["player"] = {
             "description": "Player id whose block we want to place",
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
         }
         props["game"] = {
             "description": "Handle for the game that we want to change the state of",
@@ -107,13 +115,17 @@ class Transaction(db.Model):
             "description": "Blocks used by the player",
             "type": "string"
         }
-        props["board_state"] = {
+        props["placed_blocks"] = {
             "description": "Blocks placed on the board",
-            "type": "string"
+            "type": "string",
+            "minLength": 400,
+            "maxLength": 400,
         }
         props["next_player"] = {
             "description": "Color id of the next player",
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
         }
         props["commit"] = {
             "description": "Set 1 if you want to commit the transaction",
@@ -126,7 +138,7 @@ class Transaction(db.Model):
 def init_db_command():
     db.create_all()
 
-@click.command("testgen")
+@click.command("genblocks")
 @with_appcontext
 def generate_blocks():
     blocks = []
