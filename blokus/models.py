@@ -140,7 +140,7 @@ def init_db_command():
     This function initializes the database
     """
     db.create_all()
-
+"""
 @click.command("genblocks")
 @with_appcontext
 def generate_blocks():
@@ -225,6 +225,7 @@ def generate_blocks():
     for b in blocks:
         db.session.add(b)
     db.session.commit()
+"""
 @click.command("testgen")
 @with_appcontext
 def generate_test_data():
