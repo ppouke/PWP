@@ -80,8 +80,8 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     player_id = db.Column(db.Integer, db.ForeignKey('player.id', ondelete="CASCADE"))
-    player = db.relationship("Player", foreign_keys = 'player_id')
-    game = db.relationship("Game", foreign_keys = ' game_id')
+    player = db.relationship("Player", foreign_keys = [player_id])
+    game = db.relationship("Game", foreign_keys = [game_id])
     commit = db.Column(db.Integer)
 
     used_blocks = db.Column(db.String)
@@ -128,6 +128,87 @@ def init_db_command():
 
 @click.command("testgen")
 @with_appcontext
+def generate_blocks():
+    blocks = []
+
+    blocks.append(Block())
+    blocks[0].shape = ("00000"
+                       "00000"
+                       "00100"
+                       "00000"
+                       "00000")
+    blocks.append(Block())
+    blocks[1].shape = ("00000"
+                       "00100"
+                       "00100"
+                       "00000"
+                       "00000")
+    blocks.append(Block())
+    blocks[2].shape = ("00000"
+                       "00100"
+                       "00100"
+                       "00100"
+                       "00000")
+    blocks.append(Block())
+    blocks[3].shape = ("00100"
+                       "00100"
+                       "00100"
+                       "00100"
+                       "00000")
+    blocks.append(Block())
+    blocks[4].shape = ("00100"
+                       "00100"
+                       "00100"
+                       "00100"
+                       "00100")
+    blocks.append(Block())
+    blocks[5].shape = ("00000"
+                       "00100"
+                       "01110"
+                       "00000"
+                       "00000")
+    blocks.append(Block())
+    blocks[6].shape = ("00000"
+                       "00000"
+                       "01110"
+                       "01010"
+                       "00000")
+    blocks.append(Block())
+    blocks[7].shape = ("00000"
+                       "00110"
+                       "00100"
+                       "00100"
+                       "00000")
+    blocks.append(Block())
+    blocks[8].shape = ("00000"
+                       "01100"
+                       "00100"
+                       "00100"
+                       "00000")
+    blocks.append(Block())
+    blocks[9].shape = ("00000"
+                       "00110"
+                       "00100"
+                       "01100"
+                       "00000")
+    blocks.append(Block())
+    blocks[10].shape = ("00000"
+                        "01100"
+                        "00100"
+                        "00110"
+                        "00000")
+    blocks.append(Block())
+    blocks[11].shape = ("00010"
+                        "00110"
+                        "00100"
+                        "00100"
+                        "00000")
+    
+    for b in blocks:
+        db.session.add(b)
+    db.session.commit()
+@click.command("testgen")
+@with_appcontext
 def generate_test_data():
     game = Game()
     player_1 = Player()
@@ -166,3 +247,6 @@ def generate_test_data():
     db.session.add(trans)
     db.session.add(block_1)
     db.session.add(block_2)
+
+    db.session.commit()
+

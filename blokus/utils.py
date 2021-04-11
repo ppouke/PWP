@@ -126,7 +126,7 @@ class BlokusBuilder(MasonBuilder):
         self.add_control(
             "blokus:add-transaction",
             url_for("api.transactionfactory"),
-            method=POST,
+            method="POST",
             encoding="json",
             title="Add transaction into game",
             schema=Transaction.get_schema()
