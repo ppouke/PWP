@@ -73,7 +73,7 @@ class BlokusBuilder(MasonBuilder):
     def add_control_delete_game(self, game):
         self.add_control(
             "blokus:delete",
-            url_for("api.gameitem", game=game),
+            url_for("api.gameitem", game=game.handle),
             method="DELETE",
             title="Delete this game"
         )
