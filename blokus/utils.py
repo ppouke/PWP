@@ -73,7 +73,7 @@ class BlokusBuilder(MasonBuilder):
     def add_control_delete_game(self, game):
         self.add_control(
             "blokus:delete",
-            url_for("api.game", game=game),
+            url_for("api.gameitem", game=game),
             method="DELETE",
             title="Delete this game"
         )
@@ -98,7 +98,7 @@ class BlokusBuilder(MasonBuilder):
 
     def add_control_get_game(self, game):
         self.add_control(
-            "blokus:game",
+            "blokus:gameitem",
             url_for("api.gamecollection", game=game),
             method="GET",
             title="Get a game"
@@ -115,17 +115,17 @@ class BlokusBuilder(MasonBuilder):
     def add_control_add_player(self, game):
         self.add_control(
             "blokus:add-player",
-            url_for("api.game", game=game),
+            url_for("api.gameitem", game=game),
             method="POST",
             encoding="json",
             title="Add a new player to a game",
             schema=Player.get_schema())
         )
     
-    def add_control_add_transaction(self, game):
+    def add_control_add_transaction(self):
         self.add_control(
             "blokus:add-transaction",
-            url_for("api.game", game=game),
+            url_for("api.transactionfactory"),
             method=POST,
             encoding="json",
             title="Add transaction into game",
@@ -141,14 +141,6 @@ class BlokusBuilder(MasonBuilder):
             title="Edit this transaction",
             schema=Transaction.get_schema()
         )
-    
-    def add_control_get_transaction(self, game):
-        self.add_control(
-            "blokus:current-transaction",
-            url_for("api.game", game=game),
-            method="GET",
-            title="Get current transaction of the game"
-        )
 
     def add_control_get_transactions(self):
         self.add_control(
@@ -156,6 +148,14 @@ class BlokusBuilder(MasonBuilder):
             url_for("api.transactionfactory"),
             method="GET",
             title="Get all transactions"
+        )
+    
+    def add_control_delete_transaction(self, transaction):
+        self.add_control(
+            "blokus:delete",
+            url_for("api.transactionitem", transaction=transaction),
+            method="DELETE",
+            title="Delete this transaction"
         )
 
 def create_error_response(status_code, title, message=None):

@@ -1,6 +1,6 @@
 import click
 from flask.cli import with_appcontext
-from blocus import db
+from blokus import db
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -31,6 +31,10 @@ class Game(db.Model):
             "description": "Games unique handle",
             "type". "string"
         }
+        props["placed_blocks"] = {
+            "description": "Games board state as string",
+            "type". "string"
+        }
         return schema
 
 
@@ -56,6 +60,10 @@ class Player(db.Model):
             "description": "Players color id (1-4)",
             "type". "integer"
         }
+        props["used_blocks"] = {
+            "description": "Players used blocks comma separated list",
+            "type". "string"
+        }
         return schema
 
     
@@ -70,6 +78,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     player = db.relationship("Player")
     game = db.relationship("Game", ondelete="CASCADE")
+    commit = db.Column(db.Integer)
 
     used_blocks = db.Column(db.String)
     board_state = db.Column(db.String)
@@ -82,12 +91,24 @@ class Transaction(db.Model):
         }
         props = schema["properties"] = {}
         props["player"] = {
-            "description": "Player whose block we want to place",
+            "description": "Player id whose block we want to place",
             "type". "integer"
         }
         props["game"] = {
-            "description": "Game that we want to change the state of",
-            "type". "string"
+            "description": "Handle for the game that we want to change the state of",
+            "type": "string"
+        }
+        props["used_blocks"] = {
+            "description": "Blocks used by the player",
+            "type": "string"
+        }
+        props["board_state"] = {
+            "description": "Blocks placed on the board",
+            "type": "string"
+        }
+        props["commit"] = {
+            "description": "Set 1 if you want to commit the transaction",
+            "type": "integer"
         }
         return schema
 

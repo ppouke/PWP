@@ -31,6 +31,40 @@ class GameItem(Resource):
 
         return Response(json.dumps(body), 200, mimetype=MASON)
 
+    def post(self, game):
+        db_game = Game.query.filter_by(handle=game).first()
+        if db_game = None:
+            return create_error_response(
+                404, "Not found",
+                "No game was found with the handle {}".format(game)
+            )
+        if not request.json:
+            return create_error_response(415, "Unsupported media type",
+                "Requests must be JSON"
+            )
+
+        try:
+            validate(request.json, Player.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        player = Player(
+            color=request.json["color"]
+        )
+
+        try:
+            db.session.add(player)
+            db.session.commit()
+            db_game.players.append(player)
+        except IntegrityError:
+            return create_error_response(409, "Already exists", 
+                "Player with color '{}' already exists.".format(request.json["color"])
+            )
+
+        return Response(status=201, headers={
+            "Location": url_for("api.PlayerItem", color=request.json["color"])
+        })
+
     def delete(self, game):
         db_game = Game.query.filter_by(handle=game).first()
         if db_game is None:
