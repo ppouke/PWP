@@ -67,7 +67,8 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 
 ## Meeting 4.
 * **DATE: 21.4.2021**
-* **ASSISTANTS:Iván Sánchez Milara **
+* **ASSISTANTS: Iván Sánchez Milara**
+
 
 ### Minutes
 - Update API to current API implementation
