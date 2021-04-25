@@ -81,21 +81,59 @@ def SetSelection(mouse):
         scaled = pygame.transform.scale(rotated, (98, 98))
         SCREEN.blit(scaled, ((mouseBlock[0]-2)*20+1, (mouseBlock[1]-2)*20+1))
 
+def isCorner(pos):
+    if pos[0] == 0 or pos[0] == 19:
+        return pos[1]==0 or pos[1]==19
+
+def CornerAttached(pos):
+    checks = [(-1,0),(1,0),(0,-1),(0,1)]
+    for c in checks:
+        checkPos = (pos[0]+c[0], pos[1]+c[1])
+        blockIndex = checkPos[0] + checkPos[1]*20
+        if checkPos[0] < 0 or checkPos[0] > 19 or checkPos[1] < 0 or checkPos[1] > 19:
+            continue
+        if blocks[blockIndex] == placeColor:
+            return -1
+    checks = [(-1,-1),(1,1),(1,-1),(-1,1)]
+    for c in checks:
+        checkPos = (pos[0]+c[0], pos[1]+c[1])
+        blockIndex = checkPos[0] + checkPos[1]*20
+        if checkPos[0] < 0 or checkPos[0] > 19 or checkPos[1] < 0 or checkPos[1] > 19:
+            continue
+        if blocks[blockIndex] == placeColor:
+            return 1
+    return 0
+        
 def SetBlock():
     selected = []
+    firstTime = True
+    for b in blocks:
+        if b == placeColor:
+            firstTime = False
+            break
+    
     rotated = pygame.transform.rotate(placeShape, blockRotation)
     st = bytearray(pygame.image.tostring(rotated, 'RGBA'))
     valid = True
+    inCorner = False
+    cornerAttached = False
     for i in range(25):
-        pos = (i%5-2, i//5-2)
-        blockIndex = pos[0]+selectedBlock[0] + (pos[1]+selectedBlock[1])*20
+        pos = (i%5-2 + selectedBlock[0], i//5-2 + selectedBlock[1])
+        blockIndex = pos[0] + pos[1]*20
         if st[i*4+3] > 0:
-            if blocks[blockIndex] == 0:
+            if pos[0] < 0 or pos[0] > 19 or pos[1] < 0 or pos[1] > 19:
+                valid = False
+                break
+            if isCorner((pos[0], pos[1])):
+                inCorner = True
+            if (CornerAttached(pos)==1 or firstTime):
+                cornerAttached = True
+            if blocks[blockIndex] == 0 and CornerAttached(pos)>-1:
                 selected.append(blockIndex)
             else:
                 valid = False
         #print(str(pos)+str(st[i*4+3]))
-    if valid:
+    if valid and cornerAttached and (not firstTime or inCorner):
         for b in selected:
             blocks[b] = placeColor
 
