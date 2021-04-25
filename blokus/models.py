@@ -140,11 +140,12 @@ def init_db_command():
     This function initializes the database
     """
     db.create_all()
+    generate_blocks()
 
 
 def generate_blocks():
     """
-This function populates the database with valid blocks
+    This function populates the database with valid blocks
     """
     blocks = []
 

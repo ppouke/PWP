@@ -1,7 +1,8 @@
 import os
-from flask import Flask
+from flask import Flask, Response
 from flask_sqlalchemy import SQLAlchemy
 from blokus.constants import *
+import json
 
 db = SQLAlchemy()
 
@@ -43,4 +44,13 @@ def create_app(test_config=None):
     @app.route("/profiles/<profile>/")
     def send_profile(profile):
         return "you requests {} profile".format(profile)
+    
+    @app.route("/api/")
+    def entry():
+        from blokus.utils import BlokusBuilder
+        body = BlokusBuilder()
+        body.add_namespace("blokus", LINK_RELATIONS_URL)
+        body.add_control_get_blocks()
+        body.add_control_get_games()
+        return Response(json.dumps(body), 200, mimetype=MASON)
     return app
