@@ -66,15 +66,22 @@ In related wokrs, the Chess gallery API can be specified to use REST architectur
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 4.
-* **DATE:**
-* **ASSISTANTS: **
+* **DATE: 21.4.2021**
+* **ASSISTANTS: Iván Sánchez Milara**
+
 
 ### Minutes
-*Summary of what was discussed during the meeting*
+- Update API to current API implementation
+- Add comments to test code
+- Add source for the copied masonbuilder in utilities
+- Consider a solution for testing a function with an app_context decorator
 
 
 ### Action points
-*List here the actions points discussed with assistants*
+- Change transaction finished status from 204 to 202
+- Initial comments to resource_tests in transaction and player tests
+- Comment Masonbuilder with "source : PWP Course 2021, Lovelace Example"
+- Add Transaction and add controls to Game and Blocks to API
 
 
 ### Comments from staff

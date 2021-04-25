@@ -14,59 +14,70 @@ Dependencies: Found in requirements_TEsb4w3.txt
 
 Database used: SQlite Version 2.6.0
 
-# How to setup and populate database
-The code for the database and testing is found under the /blokus/ directory
+# How to setup the project
+To setup the project run
+```console
+pip install -e .
+```
+in the root folder.
 
-Firstly, it is recommended to initialize a new database/update the existing database to ensure the newest database schema is used.
-
-The database can be initialized using python with:
-```python
-from app import db, State, Game, Player
-db.create_all(()
+# Before running
+Set the enviroment variables for the flask:
+```console
+set FLASK_APP=blokus
+set FLASK_ENV=development
 ```
 
-Model instances can be created/edited/removed with SQLAlchemy procedures.
-
-E.g. Creating a Game instance with State and Player:
-```python
-#Create model instances
-
-player = Player(color = "#CD5C5C")
-state = State(placed_blocks = "0")
-game = Game()
-
-#Add relationships
-game.board_state = state
-game.players.append(player)
-
-#Add and commit to database
-db.session.add(player)
-db.session.add(state)
-db.session.add(game)
-
-db.session.commit()
+# Initializing and populating the database
+To initialize and populate the database run:
+```console
+flask init-db
 ```
 
-The diagram for the relationships between models can be found in the wiki under DL2. Database design and implementation
-  
+# Running the api
+To start the api run:
+```console
+flask run
+```
+
+To access the API connect to localhost:5000/api/
 
 # How to run tests of the database 
-  On the command line in the ".../blokus/" directory simply run: 
+  On the command line in the ".../tests" directory simply run: 
   ```console 
-  pytest
+  pytest --cov-report=term-missing --cov=blokus
   ```
   
-  The test_database.py file should be detected automatically
+  The test_database.py and resources_test.py file should be detected automatically
   
-  This file tests the database with:
+  The test_databse file tests the database with:
   1. Creating of instance models
   2. Finding instance in database and testing relationships
   3. Updating existing instances
   4. Removing instances
   5. Game - State one to one relationship errors
   6. Mandatory column errors
+  7. testing ondelete funnctionality
+  8. tests automatic generation of blocks
  
-  
+ The resources_test.py tests using requests on the implementation.
+ Tests the following requests:
+ 
+ Block Collection : GET, POST
+ 
+ Block Item : GET, PUT, DELETE
+ 
+ Game Collection : GET, POST
+ 
+ Game Item : GET, POST, PUT, DELETE
+ 
+ Player Item : GET
+ 
+ Transaction Factory : GET, POST
+ 
+ Transaction Items : GET, PUT, DELETE
+ 
+ 
   Note. requires pytest installed with:
   ```console
   pip install pytest
