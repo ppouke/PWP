@@ -9,39 +9,77 @@ BOARD_WIDTH = 400
 blocks = []
 selectedBlock = -1
 placeColor = 1
+blockBuffer = []
+placeShape = None
+blockRotation = 0
+
+def LoadBlock(blockString):
+    global blockBuffer, placeShape
+    blockBuffer = []
+    for c in blockString:
+        if c=="0":
+            blockBuffer.append(0xFF)
+            blockBuffer.append(0xFF)
+            blockBuffer.append(0xFF)
+            blockBuffer.append(0x00)
+        elif c=="1" or c=="2" or c=="3" or c=="4":
+            blockID = int(c)
+            blockBuffer.append(Colors[blockID][0])
+            blockBuffer.append(Colors[blockID][1])
+            blockBuffer.append(Colors[blockID][2])
+            blockBuffer.append(0x7F)
+    placeShape = pygame.image.frombuffer(bytearray(blockBuffer), (5,5), 'RGBA')
 
 def Init():
     global blocks
     blocks = []
     for i in range(20*20):
         blocks.append(0)
+        
+    LoadBlock("00000"
+              "01100"
+              "00100"
+              "00110"
+              "00000")
 
 def main():
-    global SCREEN, CLOCK
+    global SCREEN, CLOCK, placeShape, blockBuffer, blockRotation
     running = True
     pygame.init()
     SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     CLOCK = pygame.time.Clock()
-    SCREEN.fill((50,50,50))
 
     while running:
-        SetSelection(pygame.mouse.get_pos())
+        SCREEN.fill((50,50,50))
         drawGrid()
+        SetSelection(pygame.mouse.get_pos())
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 running = False
-            if event.type == pygame.MOUSEBUTTONUP:
+            elif event.type == pygame.MOUSEBUTTONUP:
                 SetBlock()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    blockRotation -= 90
+                    if blockRotation < 0:
+                        blockRotation += 360
+                elif event.key == pygame.K_r:
+                    blockRotation += 90
+                    if blockRotation > 360:
+                        blockRotation -= 360   
 
 def SetSelection(mouse):
     global selectedBlock
-    mouse = (mouse[0]//20, mouse[1]//20)
-    if mouse[0] >= 20 or mouse[1] >= 20:
+    mouseBlock = (mouse[0]//20, mouse[1]//20)
+    if mouseBlock[0] >= 20 or mouseBlock[1] >= 20:
         selectedBlock = -1
     else:
-        selectedBlock = mouse[0]+mouse[1]*20
+        selectedBlock = mouseBlock[0]+mouseBlock[1]*20
+        rotated = pygame.transform.rotate(placeShape, blockRotation)
+        scaled = pygame.transform.scale(rotated, (98, 98))
+        SCREEN.blit(scaled, ((mouseBlock[0]-2)*20+1, (mouseBlock[1]-2)*20+1))
 
 def SetBlock():
     if selectedBlock >= 0:
