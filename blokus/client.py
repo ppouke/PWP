@@ -3,6 +3,9 @@ import requests
 from dataclasses import dataclass
 import json
 from time import sleep
+
+
+blocks = []
 @dataclass
 class Player:
     color: int
@@ -12,6 +15,15 @@ class Player:
 class Game:
     handle: str
     placed_blocks: str
+
+@dataclass
+class Transaction:
+    game: str
+    player: int
+    next_player: int = -1
+    placed_blocks: str = "0"*400
+    used_blocks: str = ""
+    commit: int = 0
 
 
 class APIError(Exception):
@@ -50,6 +62,23 @@ def create_resource(s, tag, ctrl):
         print("Error")
         raise APIError(resp.status_code, resp.content)
 
+def edit_resource(s, tag, ctrl):
+    body = {}
+    schema = ctrl["schema"]
+    
+    for name, props in schema["properties"].items():
+        value = getattr(tag, name)
+        if value is not None:
+            value = convert_value(value, props)
+            body[name] = value
+    print("-----{}".format(json.dumps(body,indent=4)))
+    resp = submit_data(s, ctrl, body)
+    if resp.status_code == 204:
+        return 204
+    else:
+        print("Error")
+        raise APIError(resp.status_code, resp.content)
+
 API_URL = "http://127.0.0.1:5000/"
 
 def getBlocks(s, blocks_href):
@@ -65,19 +94,50 @@ def getBlocks(s, blocks_href):
 def getResource(s, href):
 
     resp = s.get(API_URL + href)
-    print(resp)
     body = resp.json()
     return body
 
 def getResourceFromLocation(s, location):
     resp = s.get(location)
-    print(resp)
     body = resp.json()
     return body
 
 def getGame(s, href):
     resp = s.get(API_URL + href)
     return resp.json()
+
+def placeBlock(s, game_href, player_id, block_id, board):
+    try:
+        resp = s.get(API_URL + game_href)
+        game_body = resp.json()
+        player_list_id = -1
+        for i, p in enumerate(game_body['players']):
+            if player_id == p['color']:
+                player_list_id = i
+                break
+
+        next_player = game_body['players'][(player_list_id + 1) % len(game_body['players'])]['color']
+        trans_resp = s.get(API_URL + game_body['@controls']['blokus:transactions-all']['href'])
+        trans_body = trans_resp.json()
+
+        trans_obj = Transaction(game_body['handle'], player_id, next_player)
+        trans_location = create_resource(s, trans_obj, trans_body['@controls']['blokus:add-transaction'])
+
+        trans_resource = getResourceFromLocation(s,trans_location)
+        trans_obj.used_blocks = trans_resource['used_blocks'] + "{},".format(block_id)
+        trans_obj.placed_blocks = "".join(map(str, board))
+        trans_obj.next_player = next_player
+        trans_obj.commit = 1
+        edit_resource(s, trans_obj, trans_resource['@controls']['edit'])
+        resp = s.get(API_URL + game_href)
+        game_body = resp.json()
+        return game_body
+    except APIError as e:
+        print(e.code)
+        
+
+
+
 
 if __name__ == "__main__":
     with requests.Session() as s:
@@ -92,10 +152,12 @@ if __name__ == "__main__":
             gameCollection = getResource(s, body['@controls']['blokus:games-all']['href'])
             print("Select game or create new game:")
             i=1
+            available_games = {}
             for g in gameCollection['items']:
                 game = getGame(s, g['@controls']['self']['href'])
                 if len(game['players'])<4:
                     print("{}. {}".format(i,g['handle']))
+                    available_games[i] = g['@controls']['self']['href']
                     i += 1
             
             print("{}. New game".format(i))
@@ -125,11 +187,11 @@ if __name__ == "__main__":
                         print("Error with code: {} and message: {}".format(e.code, e.message))
                 pass
             else:
-                picked_game = getGame(s, gameCollection['items'][choice-1]['@controls']['self']['href'])
-            
+                picked_game = getGame(s, available_games[choice])
+            print("Selected game: {}".format(picked_game['handle']))
             player = -1
             available_players = [1,2,3,4]
-            for p in game['players']:
+            for p in picked_game['players']:
                 available_players.remove(int(p['color']))
             
             while True:
@@ -140,10 +202,12 @@ if __name__ == "__main__":
                 except ValueError:
                     continue
                 print("Error: Pick valid player number")
-
+            print("Selected player: {}".format(player))
             player_obj = Player(color=player, used_blocks="")
-            player_resource = create_resource(s, player_obj, game['@controls']['blokus:add-player'])
+            player_resource = create_resource(s, player_obj, picked_game['@controls']['blokus:add-player'])
 
-            
+            placeBlock(s, picked_game['@controls']['self']['href'], player, 0, "1"*400)
+
+
 
             

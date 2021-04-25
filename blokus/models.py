@@ -118,14 +118,10 @@ class Transaction(db.Model):
         props["placed_blocks"] = {
             "description": "Blocks placed on the board",
             "type": "string",
-            "minLength": 400,
-            "maxLength": 400,
         }
         props["next_player"] = {
             "description": "Color id of the next player",
             "type": "integer",
-            "minimum": 1,
-            "maximum": 4
         }
         props["commit"] = {
             "description": "Set 1 if you want to commit the transaction",
