@@ -27,7 +27,7 @@ def LoadBlock(blockString):
             blockBuffer.append(Colors[blockID][0])
             blockBuffer.append(Colors[blockID][1])
             blockBuffer.append(Colors[blockID][2])
-            blockBuffer.append(0x7F)
+            blockBuffer.append(0x3F)
     placeShape = pygame.image.frombuffer(bytearray(blockBuffer), (5,5), 'RGBA')
 
 def Init():
@@ -65,7 +65,7 @@ def main():
                     blockRotation -= 90
                     if blockRotation < 0:
                         blockRotation += 360
-                elif event.key == pygame.K_r:
+                elif event.key == pygame.K_e:
                     blockRotation += 90
                     if blockRotation > 360:
                         blockRotation -= 360   
@@ -74,17 +74,30 @@ def SetSelection(mouse):
     global selectedBlock
     mouseBlock = (mouse[0]//20, mouse[1]//20)
     if mouseBlock[0] >= 20 or mouseBlock[1] >= 20:
-        selectedBlock = -1
+        selectedBlock = (-1, -1)
     else:
-        selectedBlock = mouseBlock[0]+mouseBlock[1]*20
+        selectedBlock = (mouseBlock[0], mouseBlock[1])
         rotated = pygame.transform.rotate(placeShape, blockRotation)
         scaled = pygame.transform.scale(rotated, (98, 98))
         SCREEN.blit(scaled, ((mouseBlock[0]-2)*20+1, (mouseBlock[1]-2)*20+1))
 
 def SetBlock():
-    if selectedBlock >= 0:
-        if blocks[selectedBlock] == 0:
-            blocks[selectedBlock] = placeColor
+    selected = []
+    rotated = pygame.transform.rotate(placeShape, blockRotation)
+    st = bytearray(pygame.image.tostring(rotated, 'RGBA'))
+    valid = True
+    for i in range(25):
+        pos = (i%5-2, i//5-2)
+        blockIndex = pos[0]+selectedBlock[0] + (pos[1]+selectedBlock[1])*20
+        if st[i*4+3] > 0:
+            if blocks[blockIndex] == 0:
+                selected.append(blockIndex)
+            else:
+                valid = False
+        #print(str(pos)+str(st[i*4+3]))
+    if valid:
+        for b in selected:
+            blocks[b] = placeColor
 
 def drawGrid():
     blockSize = 20 #Set the size of the grid block
@@ -92,8 +105,6 @@ def drawGrid():
         for y in range(0, BOARD_HEIGHT, blockSize):
             pos = y+x//20
             c = Colors[blocks[pos]]
-            if blocks[pos]==0 and pos==selectedBlock:
-                c = (80,80,80)
             rect = pygame.Rect(x+1, y+1, blockSize-2, blockSize-2)
             pygame.draw.rect(SCREEN, c, rect, 0)
 
