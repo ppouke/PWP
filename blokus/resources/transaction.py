@@ -57,6 +57,7 @@ class TransactionFactory(Resource):
             color = int(request.json["player"])
 
             db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
+            print(db_player)
             if db_player is None:
                 return create_error_response(
                     404, "Not found",
@@ -66,18 +67,18 @@ class TransactionFactory(Resource):
 
         if "next_player" in request.json:
             color = int(request.json["next_player"])
-            db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
-            if db_player is None:
-                return create_error_response(
-                    404, "Not found",
-                    "No player was found with the id {}".format(request.json["player"])
-                )
-            transaction.next_player = db_player.id
+            if(color>-1):
+                db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
+                print(db_player)
+                if db_player is None:
+                    return create_error_response(
+                        404, "Not found",
+                        "No player was found with the id {}".format(request.json["player"])
+                    )
+                transaction.next_player = db_player.id
 
-        if "placed_blocks" in request.json:
-            transaction.placed_blocks = request.json["placed_blocks"]
-        if "used_blocks" in request.json:
-            transaction.used_blocks = request.json["used_blocks"]
+        transaction.placed_blocks = transaction.game.placed_blocks
+        transaction.used_blocks = transaction.player.used_blocks
 
 
         id = str(transaction.id)
@@ -88,7 +89,6 @@ class TransactionFactory(Resource):
             pass
 
         id = str(transaction.id)
-        print(id)
         return Response(status=201, headers={
             "Location": url_for("api.transactionitem", transaction=id)
         })
@@ -158,29 +158,36 @@ class TransactionItem(Resource):
         if "next_player" in request.json:
             color = int(request.json["next_player"])
 
-            db_player = Player.query.filter_by(color=color).first()
+            db_player = Player.query.filter_by(game_id= db_trans.game_id, color=color).first()
             if db_player is None:
                 return create_error_response(
                     404, "Not found",
                     "No player was found with the id {}".format(request.json["player"])
                 )
             db_trans.next_player = db_player.id
+            print(db_player)
+            print(db_player.id)
 
         if "placed_blocks" in request.json:
             db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
             db_trans.used_blocks = request.json["used_blocks"]
+            print("Got blocks")
+            print(db_trans.used_blocks)
 
         if "commit" in request.json:
-            if request.json["commit"] == 1:
+            if int(request.json["commit"]) == 1:
                 next_player = Player.query.filter_by(id = db_trans.next_player).first()
                 if db_trans.game is None or db_trans.player is None or next_player is None:
                     return create_error_response(
                         400, "Bad request",
                         "No player or game was assigned for the transaction")
+                
+                
                 db_trans.game.placed_blocks = db_trans.placed_blocks
                 db_trans.game.turn_information = next_player
                 db_trans.player.used_blocks = db_trans.used_blocks
+
 
         db.session.commit()
 

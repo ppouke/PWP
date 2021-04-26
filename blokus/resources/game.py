@@ -70,7 +70,8 @@ class GameItem(Resource):
             "Player with color '{}' already exists.".format(request.json["color"])
     )
         player = Player(
-            color=request.json["color"]
+            color=request.json["color"],
+            used_blocks = ""
         )
 
         try:
@@ -135,7 +136,8 @@ class GameCollection(Resource):
             return create_error_response(400, "Invalid JSON document", str(e))
 
         game = Game(
-            handle=request.json["handle"]
+            handle=request.json["handle"],
+            placed_blocks = "0"*400
         )
 
         try:
