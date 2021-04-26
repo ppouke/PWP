@@ -6,6 +6,8 @@ from time import sleep
 
 
 blocks = []
+API_URL = "http://127.0.0.1:5000/"
+## Data classes for the resources
 @dataclass
 class Player:
     color: int
@@ -27,16 +29,28 @@ class Transaction:
 
 
 class APIError(Exception):
+    """
+    Error for api failing
+    """
     def __init__(self, error_code, error_message):
         self.code = error_code
         self.message = error_message
         super().__init__(self.message)
+
 def convert_value(value, schema_props):
+    """
+    Converts values to the integer.
+    Copied from the lovelace exercise and edited to our needs
+    """
     if schema_props["type"] == "integer":
         value = int(value)
     return value
 
 def submit_data(s, ctrl, data):
+    """
+    Sends post or put request to the server
+    Copied from the lovelace exercise 4
+    """
     resp = s.request(
         ctrl["method"],
         API_URL + ctrl["href"],
@@ -46,6 +60,10 @@ def submit_data(s, ctrl, data):
     return resp
 
 def create_resource(s, tag, ctrl):
+    """
+    Posts resource to the server
+    Copied from lovelace exercise 4
+    """
     body = {}
     schema = ctrl["schema"]
     
@@ -63,6 +81,10 @@ def create_resource(s, tag, ctrl):
         raise APIError(resp.status_code, resp.content)
 
 def edit_resource(s, tag, ctrl):
+    """
+    Puts resource to the server
+    Copied from the function above and edited to work with put
+    """
     body = {}
     schema = ctrl["schema"]
     
@@ -79,9 +101,12 @@ def edit_resource(s, tag, ctrl):
         print("Error")
         raise APIError(resp.status_code, resp.content)
 
-API_URL = "http://127.0.0.1:5000/"
+
 
 def getBlocks(s, blocks_href):
+    """
+    Gets all blocks from the collection
+    """
     resp = s.get(API_URL + blocks_href)
     body = resp.json()
     blocks = []
@@ -92,21 +117,27 @@ def getBlocks(s, blocks_href):
     return blocks
 
 def getResource(s, href):
-
+    """
+    Gets resource from the server using its href
+    """
     resp = s.get(API_URL + href)
     body = resp.json()
     return body
 
 def getResourceFromLocation(s, location):
+    """
+    Gets resource from the server using its location gotten from post response
+    """
     resp = s.get(location)
     body = resp.json()
     return body
 
-def getGame(s, href):
-    resp = s.get(API_URL + href)
-    return resp.json()
+
 
 def placeBlock(s, game_href, player_id, block_id, board):
+    """
+    Does transaction to the server to place a block
+    """
     try:
         resp = s.get(API_URL + game_href)
         game_body = resp.json()
@@ -140,21 +171,27 @@ def placeBlock(s, game_href, player_id, block_id, board):
 
 
 if __name__ == "__main__":
+
     with requests.Session() as s:
+        #Get the entrypoint
         s.headers.update({"Accept": "application/vnd.mason+json"})
         resp = s.get(API_URL + "/api/")
         if resp.status_code != 200:
             print("Unable to access API")
         else:
+            #First get all the blocks from the server
             body = resp.json()
             blocks = getBlocks(s, body['@controls']['blokus:blocks-all']['href'])
 
+            #Get the game collection
             gameCollection = getResource(s, body['@controls']['blokus:games-all']['href'])
+
+            #Select game from the list or create new game
             print("Select game or create new game:")
             i=1
             available_games = {}
             for g in gameCollection['items']:
-                game = getGame(s, g['@controls']['self']['href'])
+                game = getResource(s, g['@controls']['self']['href'])
                 if len(game['players'])<4:
                     print("{}. {}".format(i,g['handle']))
                     available_games[i] = g['@controls']['self']['href']
@@ -173,9 +210,11 @@ if __name__ == "__main__":
             
 
             picked_game = {}
+            #if choice==i player wants to create new game
             if choice==i:
                 while True:
                     try:
+                        #Create game resource
                         game_handle = input("Give name for the game: ")
                         
                         game_obj = Game(game_handle, "0"*400)
@@ -187,8 +226,11 @@ if __name__ == "__main__":
                         print("Error with code: {} and message: {}".format(e.code, e.message))
                 pass
             else:
-                picked_game = getGame(s, available_games[choice])
+                #Get the selected game from the server
+                picked_game = getResource(s, available_games[choice])
             print("Selected game: {}".format(picked_game['handle']))
+
+            #Player selection
             player = -1
             available_players = [1,2,3,4]
             for p in picked_game['players']:
@@ -203,7 +245,9 @@ if __name__ == "__main__":
                     continue
                 print("Error: Pick valid player number")
             print("Selected player: {}".format(player))
+
+            #Send the player resource to the server
             player_obj = Player(color=player, used_blocks="")
             player_resource = create_resource(s, player_obj, picked_game['@controls']['blokus:add-player'])
 
-            print(json.dumps(placeBlock(s, picked_game['@controls']['self']['href'], player, 0, "1"*400),indent=4))
+            
