@@ -13,6 +13,13 @@ blockBuffer = []
 placeShape = None
 blockRotation = 0
 
+availableBlocks =["00000"
+                  "01100"
+                  "00100"
+                  "00110"
+                  "00000"]
+blockSelection = 0
+
 def LoadBlock(blockString):
     global blockBuffer, placeShape
     blockBuffer = []
@@ -30,27 +37,34 @@ def LoadBlock(blockString):
             blockBuffer.append(0x3F)
     placeShape = pygame.image.frombuffer(bytearray(blockBuffer), (5,5), 'RGBA')
 
+def ScrollBlocks(dr):
+    global blockSelection
+    blockSelection = (blockSelection+dr) % len(availableBlocks)
+    LoadBlock(availableBlocks[blockSelection])
+
+
 def Init():
     global blocks
     blocks = []
     for i in range(20*20):
         blocks.append(0)
-        
-    LoadBlock("00000"
-              "01100"
-              "00100"
-              "00110"
-              "00000")
+
+def FetchBoard():
+    global blocks
+    print("Fetching")
 
 def main():
     global SCREEN, CLOCK, placeShape, blockBuffer, blockRotation
     running = True
+    ScrollBlocks(0)
     pygame.init()
     SCREEN = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     CLOCK = pygame.time.Clock()
 
     while running:
         SCREEN.fill((50,50,50))
+        if pygame.time.get_ticks() % 2000 == 0:
+            FetchBoard()
         drawGrid()
         SetSelection(pygame.mouse.get_pos())
         pygame.display.update()
@@ -59,7 +73,12 @@ def main():
                 pygame.quit()
                 running = False
             elif event.type == pygame.MOUSEBUTTONUP:
-                SetBlock()
+                if event.button == 1:
+                    SetBlock()
+                if event.button == 4:
+                    ScrollBlocks(-1)
+                elif event.button == 5:
+                    ScrollBlocks(1)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     blockRotation -= 90
@@ -68,7 +87,7 @@ def main():
                 elif event.key == pygame.K_e:
                     blockRotation += 90
                     if blockRotation > 360:
-                        blockRotation -= 360   
+                        blockRotation -= 360
 
 def SetSelection(mouse):
     global selectedBlock
