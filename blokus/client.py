@@ -206,8 +206,4 @@ if __name__ == "__main__":
             player_obj = Player(color=player, used_blocks="")
             player_resource = create_resource(s, player_obj, picked_game['@controls']['blokus:add-player'])
 
-            placeBlock(s, picked_game['@controls']['self']['href'], player, 0, "1"*400)
-
-
-
-            
+            print(json.dumps(placeBlock(s, picked_game['@controls']['self']['href'], player, 0, "1"*400),indent=4))
