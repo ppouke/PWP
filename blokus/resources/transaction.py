@@ -52,12 +52,12 @@ class TransactionFactory(Resource):
                     "No game was found with the handle {}".format(request.json["game"])
                 )
             transaction.game = db_game
+            
 
         if "player" in request.json:
             color = int(request.json["player"])
 
             db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
-            print(db_player)
             if db_player is None:
                 return create_error_response(
                     404, "Not found",
@@ -69,13 +69,12 @@ class TransactionFactory(Resource):
             color = int(request.json["next_player"])
             if(color>-1):
                 db_player = Player.query.filter_by(game_id=transaction.game.id, color=color).first()
-                print(db_player)
                 if db_player is None:
                     return create_error_response(
                         404, "Not found",
                         "No player was found with the id {}".format(request.json["player"])
                     )
-                transaction.next_player = db_player.id
+                transaction.next_player = color
 
         transaction.placed_blocks = transaction.game.placed_blocks
         transaction.used_blocks = transaction.player.used_blocks
@@ -87,7 +86,8 @@ class TransactionFactory(Resource):
             db.session.commit()
         except IntegrityError:
             pass
-
+        print("Players in post")
+        print(transaction.game.players)
         id = str(transaction.id)
         return Response(status=201, headers={
             "Location": url_for("api.transactionitem", transaction=id)
@@ -143,7 +143,6 @@ class TransactionItem(Resource):
                     "No game was found with the handle {}".format(request.json["game"])
                 )
             db_trans.game = db_game
-
         if "player" in request.json:
             color = int(request.json["player"])
 
@@ -154,26 +153,23 @@ class TransactionItem(Resource):
                     "No player was found with the id {}".format(request.json["player"])
                 )
             db_trans.player = db_player
-
+        
         if "next_player" in request.json:
             color = int(request.json["next_player"])
 
-            db_player = Player.query.filter_by(game_id= db_trans.game_id, color=color).first()
-            if db_player is None:
+            db_player_2 = Player.query.filter_by(game_id= db_trans.game_id, color=color).first()
+            if db_player_2 is None:
                 return create_error_response(
                     404, "Not found",
                     "No player was found with the id {}".format(request.json["player"])
                 )
-            db_trans.next_player = db_player.id
-            print(db_player)
-            print(db_player.id)
-
+            db_trans.next_player = color
+            
+        
         if "placed_blocks" in request.json:
             db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
             db_trans.used_blocks = request.json["used_blocks"]
-            print("Got blocks")
-            print(db_trans.used_blocks)
 
         if "commit" in request.json:
             if int(request.json["commit"]) == 1:
@@ -183,14 +179,18 @@ class TransactionItem(Resource):
                         400, "Bad request",
                         "No player or game was assigned for the transaction")
                 
-                
                 db_trans.game.placed_blocks = db_trans.placed_blocks
-                db_trans.game.turn_information = next_player
+                db_trans.game.turn_information = db_trans.next_player
                 db_trans.player.used_blocks = db_trans.used_blocks
+                
 
+                
 
-        db.session.commit()
-
+        try:
+            db.session.commit()
+        except Exception as e:
+            print(e)
+        
         return Response(status=204)
 
     def delete(self, transaction):

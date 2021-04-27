@@ -1,4 +1,7 @@
 import pygame
+import requests
+import json
+from dataclasses import dataclass
 
 Colors = [(100, 100, 100), (200, 0, 0), (0, 200, 0), (0, 0, 200), (200, 200, 0)]
 WINDOW_HEIGHT = 400
@@ -12,12 +15,11 @@ placeColor = 1
 blockBuffer = []
 placeShape = None
 blockRotation = 0
+usedBlocks = ""
+myTurn = False
+finished = False
 
-availableBlocks =["00000"
-                  "01100"
-                  "00100"
-                  "00110"
-                  "00000"]
+availableBlocks = []
 blockSelection = 0
 
 def LoadBlock(blockString):
@@ -38,23 +40,44 @@ def LoadBlock(blockString):
     placeShape = pygame.image.frombuffer(bytearray(blockBuffer), (5,5), 'RGBA')
 
 def ScrollBlocks(dr):
-    global blockSelection
+    global blockSelection, usedBlocks
+
     blockSelection = (blockSelection+dr) % len(availableBlocks)
-    LoadBlock(availableBlocks[blockSelection])
+    tries = 0
+    while tries<len(availableBlocks):
+        if not str(blockSelection) in usedBlocks:
+            break
+        blockSelection = (blockSelection+dr) % len(availableBlocks)
+        tries += 1
+    if not tries == len(availableBlocks):
+        LoadBlock(availableBlocks[blockSelection])
+        return True
+    return False
 
 
-def Init():
+def UpdateBoard(game_resource):
     global blocks
-    blocks = []
-    for i in range(20*20):
-        blocks.append(0)
+    blocks = list(map(int,game_resource["placed_blocks"]))
 
-def FetchBoard():
-    global blocks
-    print("Fetching")
+def Ping(s, game_href):
+    """
+    Pings the game server for the current game state
+    """
+    global myTurn, placeColor, usedBlocks
+    game = getResource(s, game_href)
+    UpdateBoard(game)
 
-def main():
-    global SCREEN, CLOCK, placeShape, blockBuffer, blockRotation
+    if myTurn == False and placeColor == int(game['turn_information']):
+        myTurn = True
+        for p in game['players']:
+            if p['color'] == placeColor:
+                usedBlocks = p['used_blocks'].split(',')
+                break
+
+
+
+def main(s, game_href, player_href):
+    global SCREEN, CLOCK, placeShape, blockBuffer, blockRotation, finished, myTurn
     running = True
     ScrollBlocks(0)
     pygame.init()
@@ -64,21 +87,27 @@ def main():
     while running:
         SCREEN.fill((50,50,50))
         if pygame.time.get_ticks() % 2000 == 0:
-            FetchBoard()
+            Ping(s, game_href)
         drawGrid()
-        SetSelection(pygame.mouse.get_pos())
+        if not finished:
+            SetSelection(pygame.mouse.get_pos())
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 running = False
             elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:
-                    SetBlock()
+                if event.button == 1 and myTurn==True:
+                    SetBlock(s, game_href)
+                    if not ScrollBlocks(1):
+                        finished=True
+                    myTurn=False
                 if event.button == 4:
-                    ScrollBlocks(-1)
+                    if not ScrollBlocks(-1):
+                        finished=True
                 elif event.button == 5:
-                    ScrollBlocks(1)
+                    if not ScrollBlocks(1):
+                        finished=True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     blockRotation -= 90
@@ -123,7 +152,8 @@ def CornerAttached(pos):
             return 1
     return 0
         
-def SetBlock():
+def SetBlock(s, game_href):
+    global placeColor, blockSelection
     selected = []
     firstTime = True
     for b in blocks:
@@ -155,6 +185,8 @@ def SetBlock():
     if valid and cornerAttached and (not firstTime or inCorner):
         for b in selected:
             blocks[b] = placeColor
+        placeBlock(s, game_href, placeColor, blockSelection, blocks)
+
 
 def drawGrid():
     blockSize = 20 #Set the size of the grid block
@@ -165,5 +197,254 @@ def drawGrid():
             rect = pygame.Rect(x+1, y+1, blockSize-2, blockSize-2)
             pygame.draw.rect(SCREEN, c, rect, 0)
 
-Init()
-main()
+API_URL = "http://127.0.0.1:5000/"
+## Data classes for the resources
+@dataclass
+class Player:
+    color: int
+    used_blocks: str
+
+@dataclass
+class Game:
+    handle: str
+    placed_blocks: str
+
+@dataclass
+class Transaction:
+    game: str
+    player: int
+    next_player: int = -1
+    placed_blocks: str = "0"*400
+    used_blocks: str = ""
+    commit: int = 0
+
+
+class APIError(Exception):
+    """
+    Error for api failing
+    """
+    def __init__(self, error_code, error_message):
+        self.code = error_code
+        self.message = error_message
+        super().__init__(self.message)
+
+def convert_value(value, schema_props):
+    """
+    Converts values to the integer.
+    Copied from the lovelace exercise and edited to our needs
+    """
+    if schema_props["type"] == "integer":
+        value = int(value)
+    return value
+
+def submit_data(s, ctrl, data):
+    """
+    Sends post or put request to the server
+    Copied from the lovelace exercise 4
+    """
+    resp = s.request(
+        ctrl["method"],
+        API_URL + ctrl["href"],
+        data=json.dumps(data),
+        headers = {"Content-type": "application/json"}
+    )
+    return resp
+
+def create_resource(s, tag, ctrl):
+    """
+    Posts resource to the server
+    Copied from lovelace exercise 4
+    """
+    body = {}
+    schema = ctrl["schema"]
+    
+    for name, props in schema["properties"].items():
+        value = getattr(tag, name)
+        if value is not None:
+            value = convert_value(value, props)
+            body[name] = value
+    
+    resp = submit_data(s, ctrl, body)
+    if resp.status_code == 201:
+        return resp.headers["Location"]
+    else:
+        print("Error")
+        raise APIError(resp.status_code, resp.content)
+
+def edit_resource(s, tag, ctrl):
+    """
+    Puts resource to the server
+    Copied from the function above and edited to work with put
+    """
+    body = {}
+    schema = ctrl["schema"]
+    
+    for name, props in schema["properties"].items():
+        value = getattr(tag, name)
+        if value is not None:
+            value = convert_value(value, props)
+            body[name] = value
+    print("-----{}".format(json.dumps(body,indent=4)))
+    resp = submit_data(s, ctrl, body)
+    if resp.status_code == 204:
+        return 204
+    else:
+        print("Error")
+        raise APIError(resp.status_code, resp.content)
+
+
+
+def getBlocks(s, blocks_href):
+    """
+    Gets all blocks from the collection
+    """
+    resp = s.get(API_URL + blocks_href)
+    body = resp.json()
+    blocks = []
+    for i in body['items']:
+        r = s.get(API_URL + i['@controls']['self']['href'])
+        b=r.json()
+        blocks.append(b['shape'])
+    return blocks
+
+def getResource(s, href):
+    """
+    Gets resource from the server using its href
+    """
+    resp = s.get(API_URL + href)
+    body = resp.json()
+    return body
+
+def getResourceFromLocation(s, location):
+    """
+    Gets resource from the server using its location gotten from post response
+    """
+    resp = s.get(location)
+    body = resp.json()
+    return body
+
+
+
+def placeBlock(s, game_href, player_id, block_id, board):
+    """
+    Does transaction to the server to place a block
+    """
+    try:
+        resp = s.get(API_URL + game_href)
+        game_body = resp.json()
+        player_list_id = -1
+        print(game_body['players'])
+        for i, p in enumerate(game_body['players']):
+            if player_id == p['color']:
+                player_list_id = i
+                break
+        print(player_list_id)
+        next_player = game_body['players'][(player_list_id + 1) % len(game_body['players'])]['color']
+        print(next_player)
+        trans_resp = s.get(API_URL + game_body['@controls']['blokus:transactions-all']['href'])
+        trans_body = trans_resp.json()
+
+        trans_obj = Transaction(game_body['handle'], player_id, next_player)
+        trans_location = create_resource(s, trans_obj, trans_body['@controls']['blokus:add-transaction'])
+
+        trans_resource = getResourceFromLocation(s,trans_location)
+        trans_obj.used_blocks = trans_resource['used_blocks'] + "{},".format(block_id)
+        trans_obj.placed_blocks = "".join(map(str, board))
+        trans_obj.next_player = next_player
+        trans_obj.commit = 1
+        edit_resource(s, trans_obj, trans_resource['@controls']['edit'])
+        resp = s.get(API_URL + game_href)
+        game_body = resp.json()
+        return game_body
+    except APIError as e:
+        print(e.code)
+        
+
+
+
+
+if __name__ == "__main__":
+
+    with requests.Session() as s:
+        #Get the entrypoint
+        s.headers.update({"Accept": "application/vnd.mason+json"})
+        resp = s.get(API_URL + "/api/")
+        if resp.status_code != 200:
+            print("Unable to access API")
+        else:
+            #First get all the blocks from the server
+            body = resp.json()
+            availableBlocks = getBlocks(s, body['@controls']['blokus:blocks-all']['href'])
+
+            #Get the game collection
+            gameCollection = getResource(s, body['@controls']['blokus:games-all']['href'])
+
+            #Select game from the list or create new game
+            print("Select game or create new game:")
+            i=1
+            available_games = {}
+            for g in gameCollection['items']:
+                game = getResource(s, g['@controls']['self']['href'])
+                if len(game['players'])<4:
+                    print("{}. {}".format(i,g['handle']))
+                    available_games[i] = g['@controls']['self']['href']
+                    i += 1
+            
+            print("{}. New game".format(i))
+            choice = -1
+            while True:
+                try:
+                    choice = int(input("Choice (1-{}): ".format(i)))
+                    if choice>0 and choice<i+1:
+                        break
+                except ValueError:
+                    continue
+                print("Error: Give choice between 1-{}".format(i))
+            
+
+            picked_game = {}
+            #if choice==i player wants to create new game
+            if choice==i:
+                while True:
+                    try:
+                        #Create game resource
+                        game_handle = input("Give name for the game: ")
+                        
+                        game_obj = Game(game_handle, "0"*400)
+                        game_resource = create_resource(s, game_obj, gameCollection['@controls']['blokus:add-game'])
+                        picked_game = getResourceFromLocation(s, game_resource)
+                        
+                        break
+                    except APIError as e:
+                        print("Error with code: {} and message: {}".format(e.code, e.message))
+                pass
+            else:
+                #Get the selected game from the server
+                picked_game = getResource(s, available_games[choice])
+            print("Selected game: {}".format(picked_game['handle']))
+
+            #Player selection
+            player = -1
+            available_players = [1,2,3,4]
+            for p in picked_game['players']:
+                available_players.remove(int(p['color']))
+            
+            while True:
+                try:
+                    player = int(input("Select player number ({}): ".format(available_players)))
+                    if player in available_players:
+                        break
+                except ValueError:
+                    continue
+                print("Error: Pick valid player number")
+            print("Selected player: {}".format(player))
+
+            #Send the player resource to the server
+            player_obj = Player(color=player, used_blocks="")
+            player_location = create_resource(s, player_obj, picked_game['@controls']['blokus:add-player'])
+
+            player_resource = getResourceFromLocation(s, player_location)
+            UpdateBoard(picked_game)
+            
+            placeColor = int(player_resource['color'])
+            main(s, picked_game['@controls']['self']['href'], player_resource['@controls']['self']['href'])

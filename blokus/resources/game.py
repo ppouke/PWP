@@ -20,8 +20,9 @@ class GameItem(Resource):
         body = BlokusBuilder(
                 handle=db_game.handle,
                 players=db_game.players,
-                placed_blocks=db_game.placed_blocks
+                placed_blocks=db_game.placed_blocks,
             )
+        
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.gameitem", game=game))
         body.add_control("profile", GAME_PROFILE)
@@ -29,6 +30,10 @@ class GameItem(Resource):
         body.add_control_add_player(game)
         body.add_control_get_games()
         body.add_control_get_transactions()
+        if not db_game.turn_information == None:
+            body['turn_information'] = db_game.turn_information
+        else:
+            body['turn_information'] = 0
 
         body['players'] = []
 
@@ -37,12 +42,12 @@ class GameItem(Resource):
                 game_id = db_player.game_id,
                 color = db_player.color,
                 used_blocks = db_player.used_blocks,
-
             )
             item.add_control("self", url_for("api.playeritem", game=db_game.handle, player=str(db_player.color)))
             item.add_control("profile", PLAYER_PROFILE)
             item.add_control("game", url_for("api.gameitem", game = db_game.handle))
             body['players'].append(item)
+            print(item)
         return Response(json.dumps(body), 200, mimetype=MASON)
 
 	# Add a player to an existing game
@@ -73,9 +78,13 @@ class GameItem(Resource):
             color=request.json["color"],
             used_blocks = ""
         )
+        
+
 
         try:
             db.session.add(player)
+            if len(db_game.players) == 0:
+                db_game.turn_information = player.color
             db_game.players.append(player)
             db.session.commit()
 
