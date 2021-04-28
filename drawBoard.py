@@ -17,6 +17,7 @@ placeShape = None
 blockRotation = 0
 usedBlocks = ""
 myTurn = False
+curTurn = '-'
 finished = False
 
 availableBlocks = []
@@ -32,7 +33,7 @@ def LoadBlock(blockString):
             blockBuffer.append(0xFF)
             blockBuffer.append(0x00)
         elif c=="1" or c=="2" or c=="3" or c=="4":
-            blockID = int(c)
+            blockID = placeColor
             blockBuffer.append(Colors[blockID][0])
             blockBuffer.append(Colors[blockID][1])
             blockBuffer.append(Colors[blockID][2])
@@ -63,8 +64,9 @@ def Ping(s, game_href):
     """
     Pings the game server for the current game state
     """
-    global myTurn, placeColor, usedBlocks
+    global myTurn, placeColor, usedBlocks, curTurn
     game = getResource(s, game_href)
+    curTurn = str(game['turn_information'])
     UpdateBoard(game)
 
     if myTurn == False and placeColor == int(game['turn_information']):
@@ -73,8 +75,6 @@ def Ping(s, game_href):
             if p['color'] == placeColor:
                 usedBlocks = p['used_blocks'].split(',')
                 break
-
-
 
 def main(s, game_href, player_href):
     global SCREEN, CLOCK, placeShape, blockBuffer, blockRotation, finished, myTurn
@@ -196,6 +196,14 @@ def drawGrid():
             c = Colors[blocks[pos]]
             rect = pygame.Rect(x+1, y+1, blockSize-2, blockSize-2)
             pygame.draw.rect(SCREEN, c, rect, 0)
+
+    font_color=(255,255,255)
+    font_obj=pygame.font.Font("C:\Windows\Fonts\segoeprb.ttf",25)
+    # Render the objects
+    text_obj=font_obj.render("Turn: "+curTurn,True,font_color)
+    SCREEN.blit(text_obj,(BOARD_WIDTH, 10))
+    text_obj=font_obj.render("Blocks left: "+str(len(availableBlocks)-len(usedBlocks)),True,font_color)
+    SCREEN.blit(text_obj,(BOARD_WIDTH, 60))
 
 API_URL = "http://127.0.0.1:5000/"
 ## Data classes for the resources
