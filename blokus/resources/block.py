@@ -10,9 +10,14 @@ from blokus.utils import *
 
 class BlockCollection(Resource):
     def get(self):
+        """
+        Returns all the blocks from the database and a link for adding blocks
+        """
         body = BlokusBuilder()
         body.add_namespace("blokus", LINK_RELATIONS_URL)
         body.add_control("self", url_for("api.blockcollection"))
+
+        #add all the blocks to a list and add to body
         body["items"] = []
         for db_block in Block.query.all():
             item = BlokusBuilder(
@@ -24,7 +29,9 @@ class BlockCollection(Resource):
 
         return Response(json.dumps(body), 200, mimetype=MASON)
     def post(self):
-
+        """
+        Adds new block to the database
+        """
         if not request.json:
             return create_error_response(
                 415, "Unsupported media type",
@@ -35,19 +42,22 @@ class BlockCollection(Resource):
             validate(request.json, Block.get_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
-
+        #Create the block class
         block=Block(shape=request.json["shape"])
 
         db.session.add(block)
         db.session.commit()
         id = str(block.id)
-
+        #Return the location of the block
         return Response(status=201, headers={
             "Location": url_for("api.blockitem", block=id)
         })
 
 class BlockItem(Resource):
     def get(self, block):
+        """
+        Returns specific block from the database
+        """
         db_block = Block.query.filter_by(id=block).first()
         if db_block is None:
             return create_error_response(
@@ -68,6 +78,9 @@ class BlockItem(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def put(self, block):
+        """
+        Edits specific block in the database
+        """
         db_block = Block.query.filter_by(id=block).first()
         if db_block is None:
             return create_error_response(
@@ -93,6 +106,9 @@ class BlockItem(Resource):
         return Response(status=204)
 
     def delete(self, block):
+        """
+        Delete specific block from the database
+        """
         db_block = Block.query.filter_by(id=block).first()
         if db_block == None:
             return create_error_response(

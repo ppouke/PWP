@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from blokus.utils import BlokusBuilder, create_error_response
 
 class GameItem(Resource):
-	# Get specified existing game resource.
+    #Get specific game from the database
     def get(self, game):
         db_game = Game.query.filter_by(handle=game).first()
         if db_game is None:
@@ -30,11 +30,13 @@ class GameItem(Resource):
         body.add_control_add_player(game)
         body.add_control_get_games()
         body.add_control_get_transactions()
+
+        #Hacky way to default turn information to 0
         if not db_game.turn_information == None:
             body['turn_information'] = db_game.turn_information
         else:
             body['turn_information'] = 0
-
+        #Add all players as a list
         body['players'] = []
 
         for db_player in Player.query.filter_by(game_id=db_game.id).all():

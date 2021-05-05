@@ -10,6 +10,9 @@ from sqlalchemy.exc import IntegrityError
 
 class TransactionFactory(Resource):
     def get(self):
+        """
+        Returns list of all transactions in the database and a link for adding transactions
+        """
         body = BlokusBuilder()
         body.add_namespace("blokus", LINK_RELATIONS_URL)
 
@@ -31,6 +34,9 @@ class TransactionFactory(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def post(self):
+        """
+        Adds new Transaction to the database
+        """
         if not request.json:
             return create_error_response(
                 415, "Unsupported media type",
@@ -43,7 +49,7 @@ class TransactionFactory(Resource):
             return create_error_response(400, "Invalid JSON document", str(e))
 
         transaction = Transaction()
-
+        #Check that valid game has been given
         if "game" in request.json:
             db_game = Game.query.filter_by(handle=request.json["game"]).first()
             if db_game is None:
@@ -53,7 +59,7 @@ class TransactionFactory(Resource):
                 )
             transaction.game = db_game
             
-
+        #Check if valid player has been given
         if "player" in request.json:
             color = int(request.json["player"])
 
@@ -64,7 +70,7 @@ class TransactionFactory(Resource):
                     "No player was found with the id {}".format(request.json["player"])
                 )
             transaction.player = db_player
-
+        #Check if valid next player has been given
         if "next_player" in request.json:
             color = int(request.json["next_player"])
             if(color>-1):
@@ -75,7 +81,7 @@ class TransactionFactory(Resource):
                         "No player was found with the id {}".format(request.json["player"])
                     )
                 transaction.next_player = color
-
+        #Get the initial placed and used blocks from the database
         transaction.placed_blocks = transaction.game.placed_blocks
         transaction.used_blocks = transaction.player.used_blocks
 
@@ -95,7 +101,11 @@ class TransactionFactory(Resource):
 
 
 class TransactionItem(Resource):
+    
     def get(self, transaction):
+        """
+        Returns specific transaction from the database
+        """
         db_trans = Transaction.query.filter_by(id=transaction).first()
         if db_trans == None:
             return create_error_response(
@@ -117,6 +127,9 @@ class TransactionItem(Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def put(self, transaction):
+        """
+        Updates specific transaction in the database. If variable "commit" is 1 then commits the changes
+        """
         db_trans = Transaction.query.filter_by(id=transaction).first()
         if db_trans == None:
             return create_error_response(
@@ -134,7 +147,7 @@ class TransactionItem(Resource):
             validate(request.json, Transaction.get_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
-
+        #Check if the game is valid
         if "game" in request.json:
             db_game = Game.query.filter_by(handle=request.json["game"]).first()
             if db_game is None:
@@ -143,6 +156,7 @@ class TransactionItem(Resource):
                     "No game was found with the handle {}".format(request.json["game"])
                 )
             db_trans.game = db_game
+        #Check if the player is valid
         if "player" in request.json:
             color = int(request.json["player"])
 
@@ -153,7 +167,7 @@ class TransactionItem(Resource):
                     "No player was found with the id {}".format(request.json["player"])
                 )
             db_trans.player = db_player
-        
+        #Check if the next player is valid
         if "next_player" in request.json:
             color = int(request.json["next_player"])
 
@@ -165,11 +179,13 @@ class TransactionItem(Resource):
                 )
             db_trans.next_player = color
             
-        
+        #Get the placed blocks and used blocks from the request
         if "placed_blocks" in request.json:
             db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
             db_trans.used_blocks = request.json["used_blocks"]
+        
+        #If commit is 1 then commit changes to the Game and Player resources in the database
         commited = False
         if "commit" in request.json:
             if int(request.json["commit"]) == 1:
@@ -196,6 +212,9 @@ class TransactionItem(Resource):
             return Response(status=204)
 
     def delete(self, transaction):
+        """
+        Deletes specific transaction from the database
+        """
         db_trans = Transaction.query.filter_by(id=transaction).first()
         if db_trans == None:
             return create_error_response(
