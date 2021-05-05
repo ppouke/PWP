@@ -24,6 +24,9 @@ availableBlocks = []
 blockSelection = 0
 
 def LoadBlock(blockString):
+    """
+    Converts a string encoded (5x5 = 25) block into a 5x5 pygame image
+    """
     global blockBuffer, placeShape
     blockBuffer = []
     for c in blockString:
@@ -41,6 +44,10 @@ def LoadBlock(blockString):
     placeShape = pygame.image.frombuffer(bytearray(blockBuffer), (5,5), 'RGBA')
 
 def ScrollBlocks(dr):
+    """
+    Changes the selected block index by specified number.
+    Loops around if above maximum or below 0 index.
+    """
     global blockSelection, usedBlocks
 
     blockSelection = (blockSelection+dr) % len(availableBlocks)
@@ -57,6 +64,9 @@ def ScrollBlocks(dr):
 
 
 def UpdateBoard(game_resource):
+    """
+    Updates displayed board with data from server
+    """
     global blocks
     blocks = list(map(int,game_resource["placed_blocks"]))
 
@@ -77,6 +87,9 @@ def Ping(s, game_href):
                 break
 
 def main(s, game_href, player_href):
+    """
+    Handles drawing and pygame events
+    """
     global SCREEN, CLOCK, placeShape, blockBuffer, blockRotation, finished, myTurn
     running = True
     ScrollBlocks(0)
@@ -119,6 +132,9 @@ def main(s, game_href, player_href):
                         blockRotation -= 360
 
 def SetSelection(mouse):
+    """
+    Draws the chosen block on currently selected tile
+    """
     global selectedBlock
     mouseBlock = (mouse[0]//20, mouse[1]//20)
     if mouseBlock[0] >= 20 or mouseBlock[1] >= 20:
@@ -130,10 +146,19 @@ def SetSelection(mouse):
         SCREEN.blit(scaled, ((mouseBlock[0]-2)*20+1, (mouseBlock[1]-2)*20+1))
 
 def isCorner(pos):
+    """
+    Returns true if specified tile is in corner
+    """
     if pos[0] == 0 or pos[0] == 19:
         return pos[1]==0 or pos[1]==19
+    return False
 
 def CornerAttached(pos):
+    """
+    Returns -1 if specified tile is side to side with own color
+    Returns 0 if there is no connection to previous blocks of own color
+    Returns 1 if tile is attached to a previous block of own color by corner
+    """
     checks = [(-1,0),(1,0),(0,-1),(0,1)]
     for c in checks:
         checkPos = (pos[0]+c[0], pos[1]+c[1])
@@ -153,6 +178,12 @@ def CornerAttached(pos):
     return 0
         
 def SetBlock(s, game_href):
+    """
+    Checks if block placement is valid, then places it if so.
+    First block by any color must cover a corner
+    Future blocks must be attached to previous own blocks by a corner
+    and must not be attached by a side
+    """
     global placeColor, blockSelection
     selected = []
     firstTime = True
@@ -187,8 +218,10 @@ def SetBlock(s, game_href):
             blocks[b] = placeColor
         placeBlock(s, game_href, placeColor, blockSelection, blocks)
 
-
 def drawGrid():
+    """
+    Renders the current board and some text on the side
+    """
     blockSize = 20 #Set the size of the grid block
     for x in range(0, BOARD_WIDTH, blockSize):
         for y in range(0, BOARD_HEIGHT, blockSize):
