@@ -74,17 +74,26 @@ def _populate_db():
 
 def _get_game_json(number=2):
     """
-    Creates a valid block JSON object to be used for PUT tests.
+    Creates a valid game JSON object to be used for PUT tests.
     """
     return {"handle": "game-{}".format(number)}
 
 def _get_player_json(number=2):
+    """
+    Creates a valid player JSON object to be used for PUT tests.
+    """
     return {"color": number}
 
 def _get_transaction_json(player = 1, game=1):
+    """
+    Creates a valid transaction JSON object to be used for PUT tests.
+    """
     return {"player": player, "game" : "game-{}".format(game) }
 
 def _get_block_json():
+    """
+    Creates a valid block JSON object to be used for PUT tests.
+    """
     return {"shape":"0"*25}
 
 def _check_namespace(client, response):
@@ -184,7 +193,9 @@ def _check_control_post_method(ctrl, client, obj, tested):
 
 
 class TestBlockCollection(object):
-
+    """
+    This class tests all the possible methods for the Block collection (get, post)
+    """
     RESOURCE_URL = "/api/blocks/"
 
     def test_get(self, client):
@@ -214,6 +225,9 @@ class TestBlockCollection(object):
 
 
 class TestBlockItem(object):
+    """
+    This class tests all the possible methods for the Block item (get, put, delete)
+    """
     RESOURCE_URL = "/api/blocks/1/"
     INVALID_URL = "/api/block/#/"
 
@@ -254,7 +268,9 @@ class TestBlockItem(object):
 
 
 class TestGameCollection(object):
-
+    """
+    This class tests all the possible methods for the Game collection (get, post)
+    """
     RESOURCE_URL = "/api/games/"
 
     def test_get(self, client):
@@ -291,6 +307,9 @@ class TestGameCollection(object):
 
 
 class TestGameItem(object):
+    """
+    This class tests all the possible methods for the Game item (get, post, delete)
+    """
     RESOURCE_URL = "/api/games/game-1/"
     INVALID_URL = "/api/games/game-x/"
 
@@ -337,6 +356,9 @@ class TestGameItem(object):
 
 
 class TestPlayerItem(object):
+    """
+    This class tests all the possible methods for the Player item(get)
+    """
     RESOURCE_URL = "/api/games/game-1/players/1/"
     INVALID_URL = "/api/games/game-1/players/wrong/"
 
@@ -353,6 +375,9 @@ class TestPlayerItem(object):
         assert resp.status_code == 404
 
 class TestTransactionFactory(object):
+    """
+    This class tests all the possible methods for the Transaction factory (get, post)
+    """
     RESOURCE_URL = "/api/transactions/"
 
     def test_get(self, client):
@@ -410,6 +435,9 @@ class TestTransactionFactory(object):
         assert resp.status_code == 400
 
 class TestTransactionItem(object):
+    """
+    This class tests all the possible methods for the Transaction item (get, put, delete). It also checks if the game and player resources are changed correctly
+    """
     RESOURCE_URL = "/api/transactions/1/"
     INVALID_URL = "/api/transactions/bobsyouruncle/"
 
@@ -468,13 +496,20 @@ class TestTransactionItem(object):
         valid["used_blocks"] = "111"
         valid["placed_blocks"] = "1"*400
         resp = client.put(self.RESOURCE_URL, json=valid)
-        assert resp.status_code == 204
+        assert resp.status_code == 202
+
+        #check if resources were changed correctly
+        resp = client.get("/api/games/game-1/players/1")
+        assert resp.json["used_blocks"] == "111"
+        resp = client.get("/api/games/game-1")
+        assert resp.json["placed_blocks"] == "1"*400
 
 
         # remove field for 400
         valid.pop("player")
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 400
+
 
 
 

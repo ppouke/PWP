@@ -6,6 +6,7 @@ from blokus.models import *
 
 class MasonBuilder(dict):
     """
+    source : PWP Course 2021, Lovelace Example
     A convenience class for managing dictionaries that represent Mason
     objects. It provides nice shorthands for inserting some of the more
     elements into the object but mostly is just a parent for the much more
