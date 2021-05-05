@@ -170,7 +170,7 @@ class TransactionItem(Resource):
             db_trans.placed_blocks = request.json["placed_blocks"]
         if "used_blocks" in request.json:
             db_trans.used_blocks = request.json["used_blocks"]
-
+        commited = False
         if "commit" in request.json:
             if int(request.json["commit"]) == 1:
                 next_player = Player.query.filter_by(id = db_trans.next_player).first()
@@ -178,7 +178,7 @@ class TransactionItem(Resource):
                     return create_error_response(
                         400, "Bad request",
                         "No player or game was assigned for the transaction")
-                
+                commited=True
                 db_trans.game.placed_blocks = db_trans.placed_blocks
                 db_trans.game.turn_information = db_trans.next_player
                 db_trans.player.used_blocks = db_trans.used_blocks
@@ -190,8 +190,10 @@ class TransactionItem(Resource):
             db.session.commit()
         except Exception as e:
             print(e)
-        
-        return Response(status=204)
+        if commited:
+            return Response(status=202)
+        else:
+            return Response(status=204)
 
     def delete(self, transaction):
         db_trans = Transaction.query.filter_by(id=transaction).first()
