@@ -15,7 +15,7 @@ placeColor = 1
 blockBuffer = []
 placeShape = None
 blockRotation = 0
-usedBlocks = ""
+usedBlocks = []
 myTurn = False
 curTurn = '-'
 finished = False
@@ -52,12 +52,12 @@ def ScrollBlocks(dr):
 
     blockSelection = (blockSelection+dr) % len(availableBlocks)
     tries = 0
-    while tries<len(availableBlocks):
+    while tries<len(availableBlocks)-1:
         if not str(blockSelection) in usedBlocks:
             break
         blockSelection = (blockSelection+dr) % len(availableBlocks)
         tries += 1
-    if not tries == len(availableBlocks):
+    if not tries == len(availableBlocks)-1:
         LoadBlock(availableBlocks[blockSelection])
         return True
     return False
@@ -83,7 +83,7 @@ def Ping(s, game_href):
         myTurn = True
         for p in game['players']:
             if p['color'] == placeColor:
-                usedBlocks = p['used_blocks'].split(',')
+                usedBlocks = list(filter(None, p['used_blocks'].split(',')))
                 break
 
 def main(s, game_href, player_href):
@@ -99,7 +99,7 @@ def main(s, game_href, player_href):
 
     while running:
         SCREEN.fill((50,50,50))
-        if pygame.time.get_ticks() % 2000 == 0:
+        if pygame.time.get_ticks() % 500 == 0:
             Ping(s, game_href)
         drawGrid()
         if not finished:
@@ -130,6 +130,10 @@ def main(s, game_href, player_href):
                     blockRotation += 90
                     if blockRotation > 360:
                         blockRotation -= 360
+                elif event.key == pygame.K_SPACE:
+                    if myTurn == True:
+                        skipBlock(s, game_href, placeColor)
+
 
 def SetSelection(mouse):
     """
@@ -217,6 +221,8 @@ def SetBlock(s, game_href):
         for b in selected:
             blocks[b] = placeColor
         placeBlock(s, game_href, placeColor, blockSelection, blocks)
+
+
 
 def drawGrid():
     """
@@ -327,7 +333,7 @@ def edit_resource(s, tag, ctrl):
             body[name] = value
     print("-----{}".format(json.dumps(body,indent=4)))
     resp = submit_data(s, ctrl, body)
-    if resp.status_code == 204:
+    if resp.status_code == 204 or resp.status_code == 202:
         return 204
     else:
         print("Error")
@@ -374,14 +380,11 @@ def placeBlock(s, game_href, player_id, block_id, board):
         resp = s.get(API_URL + game_href)
         game_body = resp.json()
         player_list_id = -1
-        print(game_body['players'])
         for i, p in enumerate(game_body['players']):
             if player_id == p['color']:
                 player_list_id = i
                 break
-        print(player_list_id)
         next_player = game_body['players'][(player_list_id + 1) % len(game_body['players'])]['color']
-        print(next_player)
         trans_resp = s.get(API_URL + game_body['@controls']['blokus:transactions-all']['href'])
         trans_body = trans_resp.json()
 
@@ -391,6 +394,37 @@ def placeBlock(s, game_href, player_id, block_id, board):
         trans_resource = getResourceFromLocation(s,trans_location)
         trans_obj.used_blocks = trans_resource['used_blocks'] + "{},".format(block_id)
         trans_obj.placed_blocks = "".join(map(str, board))
+        trans_obj.next_player = next_player
+        trans_obj.commit = 1
+        edit_resource(s, trans_obj, trans_resource['@controls']['edit'])
+        resp = s.get(API_URL + game_href)
+        game_body = resp.json()
+        return game_body
+    except APIError as e:
+        print(e.code)
+
+def skipBlock(s, game_href, player_id):
+    """
+    Does transaction to the server to place a block
+    """
+    try:
+        resp = s.get(API_URL + game_href)
+        game_body = resp.json()
+        player_list_id = -1
+        for i, p in enumerate(game_body['players']):
+            if player_id == p['color']:
+                player_list_id = i
+                break
+        next_player = game_body['players'][(player_list_id + 1) % len(game_body['players'])]['color']
+        trans_resp = s.get(API_URL + game_body['@controls']['blokus:transactions-all']['href'])
+        trans_body = trans_resp.json()
+
+        trans_obj = Transaction(game_body['handle'], player_id, next_player)
+        trans_location = create_resource(s, trans_obj, trans_body['@controls']['blokus:add-transaction'])
+
+        trans_resource = getResourceFromLocation(s,trans_location)
+        trans_obj.used_blocks = trans_resource['used_blocks']
+        trans_obj.placed_blocks = game_body['placed_blocks']
         trans_obj.next_player = next_player
         trans_obj.commit = 1
         edit_resource(s, trans_obj, trans_resource['@controls']['edit'])
