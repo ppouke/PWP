@@ -83,4 +83,16 @@ To access the API connect to localhost:5000/api/
   pip install pytest
   ```
   
-
+# How to run the client
+When the API is running, run client.py. 
+It will automatically attempt to connect to localhost:5000.
+Then, it gives you an option to connect to an existing game or create a new one.
+Enter a number corresponding to your choice.
+After that, choose the player you want to be (the color).
+pygame window will open. On your turn, you must place a block at a valid position.
+At the start of the game, your block must overlap a corner tile.
+After that, blocks must be connected to previous own blocks by a corner.
+Rotate block with Q and E and change selected block with mousewheel.
+Once you cannot place any more blocks, press space to pass your turn.
+Your goal is to place all your blocks. 
+Winner is the one with least squares in their remaing blocks at the end of the game.
