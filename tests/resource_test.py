@@ -499,9 +499,9 @@ class TestTransactionItem(object):
         assert resp.status_code == 202
 
         #check if resources were changed correctly
-        resp = client.get("/api/games/game-1/players/1")
-        assert resp.json["used_blocks"] == "111"
-        resp = client.get("/api/games/game-1")
+        resp = client.get("/api/games/game-1/players/1/")
+        assert resp.json["used_blocks"] == '111'
+        resp = client.get("/api/games/game-1/")
         assert resp.json["placed_blocks"] == "1"*400
 
 
