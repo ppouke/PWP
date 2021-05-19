@@ -244,7 +244,7 @@ def drawGrid():
     text_obj=font_obj.render("Blocks left: "+str(len(availableBlocks)-len(usedBlocks)),True,font_color)
     SCREEN.blit(text_obj,(BOARD_WIDTH, 60))
 
-API_URL = "http://denho.hopto.org:5000/"
+API_URL = "localhost:5000/"
 ## Data classes for the resources
 @dataclass
 class Player:
