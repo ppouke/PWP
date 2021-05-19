@@ -244,7 +244,7 @@ def drawGrid():
     text_obj=font_obj.render("Blocks left: "+str(len(availableBlocks)-len(usedBlocks)),True,font_color)
     SCREEN.blit(text_obj,(BOARD_WIDTH, 60))
 
-API_URL = "http://127.0.0.1:5000/"
+API_URL = "localhost:5000/"
 ## Data classes for the resources
 @dataclass
 class Player:
@@ -439,87 +439,113 @@ def skipBlock(s, game_href, player_id):
 
 
 if __name__ == "__main__":
+    while True:
 
-    with requests.Session() as s:
-        #Get the entrypoint
-        s.headers.update({"Accept": "application/vnd.mason+json"})
-        resp = s.get(API_URL + "/api/")
-        if resp.status_code != 200:
-            print("Unable to access API")
-        else:
-            #First get all the blocks from the server
-            body = resp.json()
-            availableBlocks = getBlocks(s, body['@controls']['blokus:blocks-all']['href'])
+        with requests.Session() as s:
+            #Get the entrypoint
+            s.headers.update({"Accept": "application/vnd.mason+json"})
+            resp = s.get(API_URL + "/api/")
+            if resp.status_code != 200:
+                print("Unable to access API")
+            else:
+                #First get all the blocks from the server
+                body = resp.json()
+                availableBlocks = getBlocks(s, body['@controls']['blokus:blocks-all']['href'])
 
-            #Get the game collection
-            gameCollection = getResource(s, body['@controls']['blokus:games-all']['href'])
+                #Get the game collection
+                gameCollection = getResource(s, body['@controls']['blokus:games-all']['href'])
 
-            #Select game from the list or create new game
-            print("Select game or create new game:")
-            i=1
-            available_games = {}
-            for g in gameCollection['items']:
-                game = getResource(s, g['@controls']['self']['href'])
-                if len(game['players'])<4:
-                    print("{}. {}".format(i,g['handle']))
-                    available_games[i] = g['@controls']['self']['href']
-                    i += 1
-            
-            print("{}. New game".format(i))
-            choice = -1
-            while True:
-                try:
-                    choice = int(input("Choice (1-{}): ".format(i)))
-                    if choice>0 and choice<i+1:
-                        break
-                except ValueError:
-                    continue
-                print("Error: Give choice between 1-{}".format(i))
-            
-
-            picked_game = {}
-            #if choice==i player wants to create new game
-            if choice==i:
+                #Select game from the list or create new game
+                print("Select game or create new game:")
+                i=1
+                available_games = {}
+                for g in gameCollection['items']:
+                    game = getResource(s, g['@controls']['self']['href'])
+                    if len(game['players'])<4:
+                        print("{}. {}".format(i,g['handle']))
+                        available_games[i] = g['@controls']['self']['href']
+                        i += 1
+                
+                print("{}. New game".format(i))
+                print("{}. Delete game".format(i+1))
+                choice = -1
                 while True:
                     try:
-                        #Create game resource
-                        game_handle = input("Give name for the game: ")
+                        choice = int(input("Choice (1-{}): ".format(i+1)))
+                        if choice>0 and choice<i+2:
+                            break
+                    except ValueError:
+                        continue
+                    print("Error: Give choice between 1-{}".format(i+1))
+                
+
+                picked_game = {}
+                #if choice==i player wants to create new game
+                if choice==i:
+                    while True:
+                        try:
+                            #Create game resource
+                            game_handle = input("Give name for the game: ")
+                            
+                            game_obj = Game(game_handle, "0"*400)
+                            game_resource = create_resource(s, game_obj, gameCollection['@controls']['blokus:add-game'])
+                            picked_game = getResourceFromLocation(s, game_resource)
+                            
+                            break
+                        except APIError as e:
+                            print("Error with code: {} and message: {}".format(e.code, e.message))
+                    pass
+                elif choice == i+1:
+                    
+                    try:
+                        game_handle = int(input("Give the number of the game you want to delete: "))
                         
-                        game_obj = Game(game_handle, "0"*400)
-                        game_resource = create_resource(s, game_obj, gameCollection['@controls']['blokus:add-game'])
-                        picked_game = getResourceFromLocation(s, game_resource)
-                        
-                        break
+                        game_href = available_games[game_handle]
+                        resp = s.delete(API_URL + game_href)
+                        for id in range(1,100):
+                            print("")
+                        print("Game deleted")
                     except APIError as e:
-                        print("Error with code: {} and message: {}".format(e.code, e.message))
-                pass
-            else:
-                #Get the selected game from the server
-                picked_game = getResource(s, available_games[choice])
-            print("Selected game: {}".format(picked_game['handle']))
-
-            #Player selection
-            player = -1
-            available_players = [1,2,3,4]
-            for p in picked_game['players']:
-                available_players.remove(int(p['color']))
-            
-            while True:
-                try:
-                    player = int(input("Select player number ({}): ".format(available_players)))
-                    if player in available_players:
-                        break
-                except ValueError:
+                        for id in range(1,100):
+                            print("")
+                        print("Error: {}".format(e.message))
+                    except ValueError:
+                        for id in range(1,100):
+                            print("")
+                        print("Please give number of the game you want to delete")
+                    except KeyError:
+                        for id in range(1,100):
+                            print("")
+                        print("Please give valid game number")
                     continue
-                print("Error: Pick valid player number")
-            print("Selected player: {}".format(player))
 
-            #Send the player resource to the server
-            player_obj = Player(color=player, used_blocks="")
-            player_location = create_resource(s, player_obj, picked_game['@controls']['blokus:add-player'])
+                else:
+                    #Get the selected game from the server
+                    picked_game = getResource(s, available_games[choice])
+                print("Selected game: {}".format(picked_game['handle']))
 
-            player_resource = getResourceFromLocation(s, player_location)
-            UpdateBoard(picked_game)
-            
-            placeColor = int(player_resource['color'])
-            main(s, picked_game['@controls']['self']['href'], player_resource['@controls']['self']['href'])
+                #Player selection
+                player = -1
+                available_players = [1,2,3,4]
+                for p in picked_game['players']:
+                    available_players.remove(int(p['color']))
+                
+                while True:
+                    try:
+                        player = int(input("Select player number ({}): ".format(available_players)))
+                        if player in available_players:
+                            break
+                    except ValueError:
+                        continue
+                    print("Error: Pick valid player number")
+                print("Selected player: {}".format(player))
+
+                #Send the player resource to the server
+                player_obj = Player(color=player, used_blocks="")
+                player_location = create_resource(s, player_obj, picked_game['@controls']['blokus:add-player'])
+
+                player_resource = getResourceFromLocation(s, player_location)
+                UpdateBoard(picked_game)
+                
+                placeColor = int(player_resource['color'])
+                main(s, picked_game['@controls']['self']['href'], player_resource['@controls']['self']['href'])
